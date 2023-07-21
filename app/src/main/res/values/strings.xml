@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">BoxDotSize</string>
+    <string name="app_name">Box.Size</string>
+    <string name="home_description">휴대폰 카메라를 통해\n쉽게 박스의 크기를 측정 할 수 있어요.</string>
+    <string name="go_video">영상으로 확인</string>
+    <string name="go_camera">이미지로 확인</string>
+    <string name="video_guide">동영상 촬영 가이드라인</string>
 </resources>
