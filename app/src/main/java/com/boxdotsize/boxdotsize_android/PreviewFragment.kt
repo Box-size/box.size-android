@@ -11,7 +11,10 @@ import androidx.camera.video.VideoCapture
 import android.Manifest
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.Recorder
@@ -23,26 +26,28 @@ import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class PreviewFragment:Fragment() {
+class PreviewFragment : Fragment() {
 
-    private var _binding: FragmentPreviewBinding?=null
+    private var _binding: FragmentPreviewBinding? = null
     private val binding get() = _binding!!
 
-    private var imageCapture: ImageCapture?=null
-    private var videoCapture:VideoCapture<Recorder>? =null
-    private var recording: Recording?=null
+    private val contract = ActivityResultContracts.RequestPermission()
 
-    private lateinit var cameraExecutor:ExecutorService
+    private var imageCapture: ImageCapture? = null
+    private var videoCapture: VideoCapture<Recorder>? = null
+    private var recording: Recording? = null
 
-    companion object{
-        private const val TAG="CameraXApp"
-        private const val FILENAME_FORMAT="yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS=10
-        private val REQUIRED_PERMISSIONS=mutableListOf(
+    private lateinit var cameraExecutor: ExecutorService
+
+    companion object {
+        private const val TAG = "CameraXApp"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = mutableListOf(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO
-        ).apply{
-            if(Build.VERSION.SDK_INT<=Build.VERSION_CODES.P){
+        ).apply {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                 add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }.toTypedArray()
@@ -54,15 +59,15 @@ class PreviewFragment:Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        if(allPermissionsGrated()){
-            startCamera()
-        }else{
-            ActivityCompat.requestPermissions(requireActivity(),REQUIRED_PERMISSIONS,REQUEST_CODE_PERMISSIONS)
+        val activityResultLauncher = registerForActivityResult(contract) { isGanted ->
+            if (isGanted) startCamera()
         }
 
-        cameraExecutor= Executors.newSingleThreadExecutor()
+        activityResultLauncher.launch(Manifest.permission.CAMERA)
 
-        _binding= FragmentPreviewBinding.inflate(inflater,container,false)
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
+        _binding = FragmentPreviewBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -71,55 +76,36 @@ class PreviewFragment:Fragment() {
 
     }
 
-    private fun takePhoto(){}
+    private fun takePhoto() {}
 
-    private fun captureVideo(){}
+    private fun captureVideo() {}
 
-    private fun startCamera(){
-        val cameraPrividerFuture=ProcessCameraProvider.getInstance(requireContext())
-        cameraPrividerFuture.addListener({
-            val cameraProvider:ProcessCameraProvider=cameraPrividerFuture.get()
-            val preview= Preview.Builder()
+    private fun startCamera() {
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
+        cameraProviderFuture.addListener({
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder()
                 .build()
-                .also{
+                .also {
                     it.setSurfaceProvider(binding.pvVideo.surfaceProvider)
                 }
 
-            val cameraSelector= CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-            try{
+            try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
-                    this,cameraSelector,preview
+                    this, cameraSelector, preview
                 )
-            }catch(e:Exception){
-                Log.e(TAG,"Use case binding filed",e)
+            } catch (e: Exception) {
+                Log.e(TAG, "Use case binding filed", e)
             }
-        },ContextCompat.getMainExecutor(requireContext()))
-    }
-
-    private fun allPermissionsGrated()=REQUIRED_PERMISSIONS.all{
-        ContextCompat.checkSelfPermission(requireContext(),it)== PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if(requestCode== REQUEST_CODE_PERMISSIONS){
-            if(allPermissionsGrated()){
-                startCamera()
-            }else{
-                Toast.makeText(requireContext(),"권한을 허용해주세요.",Toast.LENGTH_SHORT).show()
-                //finish()
-            }
-        }
+        }, ContextCompat.getMainExecutor(requireContext()))
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         cameraExecutor.shutdown()
-        _binding=null
+        _binding = null
     }
 }
