@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CjToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@color/cj_navy</item>
+        <item name="titleTextColor">@color/white</item>
+    </style>
+</resources>
