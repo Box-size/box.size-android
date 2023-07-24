@@ -1,7 +1,7 @@
 # box.size_android
 스마트폰 카메라를 이용해 박스 크기를 측정하는 안드로이드 어플리케이션
 
-## 진행상황 (7/11)   -> 코드는 7/15일 안에 수정 후 dev브랜치로 푸시할 예정
+## 진행상황 (7/11)  
 
 <img src="https://github.com/Box-size/box.size-android/assets/59639035/7255d48c-1f88-43ff-9443-47e9b8eac57d" width=300px/>
 
