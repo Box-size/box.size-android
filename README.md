@@ -1,4 +1,4 @@
-# box.size_android
+# box.size - android
 스마트폰 카메라를 이용해 박스 크기를 측정하는 안드로이드 어플리케이션
 
 ## 진행상황 (7/11)  
