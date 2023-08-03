@@ -94,7 +94,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
         _binding = FragmentPreviewBinding.inflate(inflater, container, false)
         interactor =
             BoxAnalyzeInteractor(object : BoxAnalyzeInteractor.OnBoxAnalyzeResponseListener {
-                override fun onResponse(width: Int, height: Int, tall: Int) {
+                override fun onResponse(width: Float, height: Float, tall: Float) {
                     val builder = StringBuilder().apply {
                         append("width : ")
                         append(width)

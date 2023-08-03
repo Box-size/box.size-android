@@ -20,7 +20,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     private var focalLength: Float? = null
 
     interface OnBoxAnalyzeResponseListener {
-        fun onResponse(width: Int, height: Int, tall: Int)
+        fun onResponse(width: Float, height: Float, tall: Float)
 
         fun onError()
     }
