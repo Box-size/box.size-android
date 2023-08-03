@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.boxdotsize.boxdotsize_android.databinding.FragmentHomeBinding
 
-class HomeFragment: Fragment() {
-    private var _binding:FragmentHomeBinding?=null
+class HomeFragment : Fragment() {
+    private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -17,7 +17,7 @@ class HomeFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding= FragmentHomeBinding.inflate(inflater,container,false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -25,6 +25,7 @@ class HomeFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btGoGallery.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_imageFragment)
         }
 
         binding.btGoVideo.setOnClickListener {
@@ -34,6 +35,6 @@ class HomeFragment: Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding=null
+        _binding = null
     }
 }

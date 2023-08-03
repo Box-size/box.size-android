@@ -11,9 +11,16 @@
         <action
             android:id="@+id/action_homeFragment_to_previewFragment"
             app:destination="@id/previewFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_imageFragment"
+            app:destination="@id/imageFragment" />
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
         android:name="com.boxdotsize.boxdotsize_android.PreviewFragment"
         android:label="PreviewFragment" />
+    <fragment
+        android:id="@+id/imageFragment"
+        android:name="com.boxdotsize.boxdotsize_android.UniBoxSizeMeasureFragment"
+        android:label="ImageFragment" />
 </navigation>

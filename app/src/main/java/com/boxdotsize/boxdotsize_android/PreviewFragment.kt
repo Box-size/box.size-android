@@ -1,6 +1,5 @@
 package com.boxdotsize.boxdotsize_android
 
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,16 +9,12 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.video.VideoCapture
 import android.Manifest
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.FocusMeteringAction
-import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
