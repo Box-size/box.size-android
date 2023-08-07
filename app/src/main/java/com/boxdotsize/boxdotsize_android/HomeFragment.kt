@@ -16,7 +16,7 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -30,6 +30,10 @@ class HomeFragment : Fragment() {
 
         binding.btGoVideo.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_previewFragment)
+        }
+
+        binding.btnTest.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_testFragment)
         }
     }
 

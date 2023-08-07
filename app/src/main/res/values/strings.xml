@@ -4,4 +4,5 @@
     <string name="go_video">영상으로 확인</string>
     <string name="go_camera">이미지로 확인</string>
     <string name="video_guide">동영상 촬영 가이드라인</string>
+    <string name="test">테스트</string>
 </resources>

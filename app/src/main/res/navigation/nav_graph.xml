@@ -7,13 +7,16 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.boxdotsize.boxdotsize_android.HomeFragment"
-        android:label="HomeFragment" >
+        android:label="HomeFragment">
         <action
             android:id="@+id/action_homeFragment_to_previewFragment"
             app:destination="@id/previewFragment" />
         <action
             android:id="@+id/action_homeFragment_to_imageFragment"
             app:destination="@id/imageFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_testFragment"
+            app:destination="@id/testFragment" />
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
@@ -23,4 +26,8 @@
         android:id="@+id/imageFragment"
         android:name="com.boxdotsize.boxdotsize_android.UniBoxSizeMeasureFragment"
         android:label="ImageFragment" />
+    <fragment
+        android:id="@+id/testFragment"
+        android:name="com.boxdotsize.boxdotsize_android.TestFragment"
+        android:label="TestFragment" />
 </navigation>
