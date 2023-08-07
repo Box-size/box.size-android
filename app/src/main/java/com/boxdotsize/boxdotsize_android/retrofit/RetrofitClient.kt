@@ -9,14 +9,15 @@ import java.util.concurrent.TimeUnit
 
 
 object RetrofitClient {
-    private const val BASE_URL = "http://15.164.132.181:8000"//"http://192.168.18.19:8000/"//"http://52.79.88.247:8000/"//
+    private const val BASE_URL =
+        "http://15.164.132.181:8000"//"http://192.168.18.19:8000/"//"http://52.79.88.247:8000/"//
     private var retrofit: Retrofit? = null
 
-    val loggingInterceptor = HttpLoggingInterceptor(object :HttpLoggingInterceptor.Logger{
+    val loggingInterceptor = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
         override fun log(message: String) {
             Log.d("OkHttp", message)
         }
-    }).apply{
+    }).apply {
         setLevel(HttpLoggingInterceptor.Level.BODY)
     }
 

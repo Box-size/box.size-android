@@ -1,6 +1,7 @@
 package com.boxdotsize.boxdotsize_android
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -15,6 +16,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.camera2.interop.Camera2Interop
@@ -49,6 +51,8 @@ class TestFragment : Fragment() {
 
     private var interactor: TestInteractor? = null
 
+    private var progressDialog:AlertDialog?=null
+
     companion object {
         private const val TAG = "CameraXApp"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
@@ -81,7 +85,8 @@ class TestFragment : Fragment() {
         _binding = FragmentTestBinding.inflate(inflater, container, false)
         interactor =
             TestInteractor(object : TestInteractor.OnTestResultResponseListener {
-                override fun onResponse(isTestSuccess: Boolean) {
+                override fun onResponse(isTestSuccess: Boolean, msg: String) {
+                    progressDialog?.dismiss()
                     if (isTestSuccess) {
                         Toast.makeText(requireContext(), "테스트가 완료되었습니다!", Toast.LENGTH_SHORT).show()
                         findNavController().popBackStack()
@@ -92,10 +97,17 @@ class TestFragment : Fragment() {
                 }
 
                 override fun onError() {
+                    progressDialog?.dismiss()
                     Toast.makeText(requireContext(), "테스트 실패. 다시 테스트해주세요.", Toast.LENGTH_SHORT)
                         .show()
                 }
             })
+
+        val dialogView=LayoutInflater.from(requireContext()).inflate(R.layout.dialog_progress,null)
+        progressDialog=AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
 
         return binding.root
     }
@@ -105,6 +117,7 @@ class TestFragment : Fragment() {
 
         binding.btnTestStart.setOnClickListener {
             takePhoto()
+            progressDialog?.show()
         }
     }
 
@@ -201,6 +214,7 @@ class TestFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         cameraExecutor.shutdown()
+        progressDialog=null
         _binding = null
     }
 
