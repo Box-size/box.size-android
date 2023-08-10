@@ -73,14 +73,15 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     ) {
 
         //TODO 여기서 분석 시작
-
+        //파이썬 코드 호출
         val python = Python.getInstance()
+        //사용할 파이썬 파일에 box.py 등록
         val pythonModule = python.getModule("box")
 
         val imageData: ByteArray = file.readBytes()
-
+        //box.py 의 main 함수 호출
         val result: String = pythonModule.callAttr("main", imageData, cameraParams).toString()
-
+        //결과값 Json 객체화
         val resultJson = JSONObject(result)
         val width: Float = resultJson.getDouble("width").toFloat()
         val height: Float = resultJson.getDouble("height").toFloat()
