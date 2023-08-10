@@ -65,42 +65,52 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         fun onError()
     }
 
-    fun requestBoxAnalize(
+    fun requestBoxAnalyze(
         file: File
     ) {
-        this.focalLength ?: return
-        cameraParams ?: return
-        val body = file.toMultiPart()
 
-//      val focalLength = RequestBody.create(MediaType.parse("text/plain"), focalLength.toString())
-        val params = RequestBody.create(MediaType.parse("text/plain"), cameraParams)
-        service.requestBoxSizeAnalyze(
-            body,
-            params
-        ).enqueue(object : Callback<BoxAnalyzeResponseDTO> {
-            override fun onResponse(
-                call: Call<BoxAnalyzeResponseDTO>,
-                response: Response<BoxAnalyzeResponseDTO>
-            ) {
-                Log.d("Retrofit", response.errorBody().toString())
-                response.body()?.response?.apply {
-                    listener.onResponse(
-                        this.width,
-                        this.height,
-                        this.tall
-                    )
-                }
+        //TODO 여기서 분석 시작
 
-                if (response.body() != null) {
+        val width=0f
+        val height=0f
+        val tall=0f
+        //결과는 아래와 같이 반환( 넣으면 알아서 ui로 보내줘요~)
+        listener.onResponse(width,height,tall)
 
-                    Log.d("Retrofit", response.body()!!.response.tall.toString())
-                }
-            }
 
-            override fun onFailure(call: Call<BoxAnalyzeResponseDTO>, t: Throwable) {
-                Log.d("Retrofit", ",,,")
-            }
-        })
+//        this.focalLength ?: return
+//        cameraParams ?: return
+//        val body = file.toMultiPart()
+//
+////      val focalLength = RequestBody.create(MediaType.parse("text/plain"), focalLength.toString())
+//        val params = RequestBody.create(MediaType.parse("text/plain"), cameraParams)
+//        service.requestBoxSizeAnalyze(
+//            body,
+//            params
+//        ).enqueue(object : Callback<BoxAnalyzeResponseDTO> {
+//            override fun onResponse(
+//                call: Call<BoxAnalyzeResponseDTO>,
+//                response: Response<BoxAnalyzeResponseDTO>
+//            ) {
+//                Log.d("Retrofit", response.errorBody().toString())
+//                response.body()?.response?.apply {
+//                    listener.onResponse(
+//                        this.width,
+//                        this.height,
+//                        this.tall
+//                    )
+//                }
+//
+//                if (response.body() != null) {
+//
+//                    Log.d("Retrofit", response.body()!!.response.tall.toString())
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<BoxAnalyzeResponseDTO>, t: Throwable) {
+//                Log.d("Retrofit", ",,,")
+//            }
+//        })
     }
 
     fun setFocalLength(focalLength: Float) {
