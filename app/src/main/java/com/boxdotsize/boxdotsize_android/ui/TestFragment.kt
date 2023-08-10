@@ -168,7 +168,7 @@ class TestFragment : Fragment() {
                     val height = imageBitmap.height
 
                     val msg = "Photo capture succeeded: ${output.savedUri} $width $height"
-                    interactor?.requestBoxAnalyze(file)
+                    interactor?.requestCameraParamsAnalyze(file)
                     Log.d(TAG, msg)
                 }
             }
@@ -188,7 +188,7 @@ class TestFragment : Fragment() {
                     result: TotalCaptureResult
                 ) {
                     val focalLength = result.get(CaptureResult.LENS_FOCAL_LENGTH) ?: return
-                    interactor?.setFocalLength(focalLength)
+                    //interactor?.setFocalLength(focalLength)
                     super.onCaptureCompleted(session, request, result)
                 }
             }
