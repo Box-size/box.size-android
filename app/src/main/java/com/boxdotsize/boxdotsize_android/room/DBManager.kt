@@ -10,4 +10,5 @@ object DBManager {
     ).build()
 
     val analyzeResultDao=db.analyzeResultDao()
+    val cameraParamDao=db.cameraParamsDao()
 }

@@ -14,9 +14,7 @@ interface BoxSizeAnalyzeService {
     @POST("/api/analyze-1")
     fun requestBoxSizeAnalyze(
         @Part image: MultipartBody.Part,
-        @Part("width") originalWidth:okhttp3.RequestBody,
-        @Part("height") originalHeight:okhttp3.RequestBody,
-        @Part("focalLength") focalLength:okhttp3.RequestBody
+    @Part("params") params:okhttp3.RequestBody
     ):Call<BoxAnalyzeResponseDTO>
 
     @Multipart

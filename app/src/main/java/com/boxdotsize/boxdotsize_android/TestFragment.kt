@@ -45,7 +45,6 @@ class TestFragment : Fragment() {
     private val contract = ActivityResultContracts.RequestPermission()
 
     private var imageCapture: ImageCapture? = null
-    private val observable = PublishSubject.create<Float>()
 
     private lateinit var cameraExecutor: ExecutorService
 
@@ -190,8 +189,6 @@ class TestFragment : Fragment() {
                 ) {
                     val focalLength = result.get(CaptureResult.LENS_FOCAL_LENGTH) ?: return
                     interactor?.setFocalLength(focalLength)
-                    //Log.d("focal",focalLength.toString())
-                    observable.onNext(focalLength)
                     super.onCaptureCompleted(session, request, result)
                 }
             }
@@ -202,7 +199,7 @@ class TestFragment : Fragment() {
             val preview = builder
                 .build()
                 .also {
-                    it.setSurfaceProvider(binding.pvTestCameraPreview.surfaceProvider)
+                    if(_binding!=null) it.setSurfaceProvider(binding.pvTestCameraPreview.surfaceProvider)
                 }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA

@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit
 class UniBoxSizeMeasureFragment : Fragment() {
 
     private var _binding: FragmentPreviewBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
 
     private val contract = ActivityResultContracts.RequestPermission()
 
@@ -103,7 +103,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
                         append("\ntall : ")
                         append(tall)
                     }
-                    binding.tvBoxAnalyzeResult.text = builder
+                    binding?.tvBoxAnalyzeResult?.text = builder
                 }
 
                 override fun onError() {
@@ -111,13 +111,13 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 }
             })
 
-        return binding.root
+        return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.pvVideo.setOnClickListener {
+        binding?.pvVideo?.setOnClickListener {
             Toast.makeText(requireContext(), "HELLO", Toast.LENGTH_SHORT).show()
             takePhoto()
         }
@@ -220,7 +220,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
             val preview = builder
                 .build()
                 .also {
-                    it.setSurfaceProvider(binding.pvVideo.surfaceProvider)
+                    it.setSurfaceProvider(binding?.pvVideo?.surfaceProvider)
                 }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA

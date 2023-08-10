@@ -1,10 +1,11 @@
 package com.boxdotsize.boxdotsize_android.retrofit
 
-data class Params(
-    val cx: Double,
-    val cy: Double,
-    val dist: List<List<Double>>,
-    val fx: Double,
-    val fy: Double,
-    val rvec: List<List<Double>>
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.google.gson.Gson
+
+@Entity("camera_params")
+class Params(
+    @PrimaryKey val id:Int=0,
+    val params:String
 )

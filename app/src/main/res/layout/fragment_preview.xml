@@ -38,9 +38,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#80ECD3D3"
             android:contentDescription="@string/video_guide"
-            app:srcCompat="@drawable/ic_launcher_foreground" />
+            app:srcCompat="@drawable/box_guide" />
 
         <TextView
             android:id="@+id/tv_box_analyze_result"

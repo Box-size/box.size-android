@@ -10,12 +10,12 @@ import com.boxdotsize.boxdotsize_android.retrofit.Response
 interface AnalyzeResultDao {
 
     @Query("SELECT * FROM analyze_result")
-    fun getAll():List<Response>
+    fun getAll():List<AnalyzeResult>
 
 
     @Insert
-    fun addResult(vararg result:Response)
+    fun addResult(result:AnalyzeResult)
 
     @Delete
-    fun deleteResult(result:Response)
+    fun deleteResult(result:AnalyzeResult)
 }
