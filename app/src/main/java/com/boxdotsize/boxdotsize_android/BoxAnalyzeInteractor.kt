@@ -10,6 +10,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import com.boxdotsize.boxdotsize_android.retrofit.BoxSizeAnalyzeService
 import com.boxdotsize.boxdotsize_android.retrofit.Params
+import com.boxdotsize.boxdotsize_android.room.AnalyzeResult
 import com.boxdotsize.boxdotsize_android.room.DBManager
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -19,6 +20,10 @@ import java.io.File
 import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
@@ -71,9 +76,21 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     fun requestBoxAnalyze(
         file: File
     ) {
+        cameraParams?:return
+        CoroutineScope(Dispatchers.IO).launch {
+            val res=analyze(file,cameraParams!!)
+            val width=res.width
+            val height=res.height
+            val tall=res.tall
+            //DBManager.cameraParamDao.insertOrUpdate(params)
+            withContext(Dispatchers.Main) {
+                listener.onResponse(width,height,tall))//성공여부 ui로 전달
+            }
+        }
+    }
 
+    private fun analyze(file:File,params: String):BoxSize{
         //TODO 여기서 분석 시작
-        //파이썬 코드 호출
         val python = Python.getInstance()
         //사용할 파이썬 파일에 box.py 등록
         val pythonModule = python.getModule("box")
@@ -86,43 +103,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         val width: Float = resultJson.getDouble("width").toFloat()
         val height: Float = resultJson.getDouble("height").toFloat()
         val tall: Float = resultJson.getDouble("tall").toFloat()
-        //결과는 아래와 같이 반환( 넣으면 알아서 ui로 보내줘요~)
-        listener.onResponse(width,height,tall)
-
-
-//        this.focalLength ?: return
-//        cameraParams ?: return
-//        val body = file.toMultiPart()
-//
-////      val focalLength = RequestBody.create(MediaType.parse("text/plain"), focalLength.toString())
-//        val params = RequestBody.create(MediaType.parse("text/plain"), cameraParams)
-//        service.requestBoxSizeAnalyze(
-//            body,
-//            params
-//        ).enqueue(object : Callback<BoxAnalyzeResponseDTO> {
-//            override fun onResponse(
-//                call: Call<BoxAnalyzeResponseDTO>,
-//                response: Response<BoxAnalyzeResponseDTO>
-//            ) {
-//                Log.d("Retrofit", response.errorBody().toString())
-//                response.body()?.response?.apply {
-//                    listener.onResponse(
-//                        this.width,
-//                        this.height,
-//                        this.tall
-//                    )
-//                }
-//
-//                if (response.body() != null) {
-//
-//                    Log.d("Retrofit", response.body()!!.response.tall.toString())
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<BoxAnalyzeResponseDTO>, t: Throwable) {
-//                Log.d("Retrofit", ",,,")
-//            }
-//        })
+        return BoxSize(width, height, tall)
     }
 
     fun setFocalLength(focalLength: Float) {
@@ -136,5 +117,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     }
 
     private fun getCameraParams(): LiveData<Params?> = DBManager.cameraParamDao.getCameraParams()
+
+    data class BoxSize(val width: Float, val height: Float, val tall: Float)
 
 }
