@@ -1,6 +1,7 @@
 import sys
 import os
-
+import io
+import json
 # box.py 파일이 있는 디렉토리를 모듈 검색 경로에 추가합니다.
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +11,7 @@ sys.path.append(parent_dir)
 from PIL import Image
 import numpy as np
 import cv2
-from modules import detector, simplifier, findDot, calibration
+from python import detector, simplifier, findDot, calibration
 from PIL.ExifTags import TAGS
 
 def rotate_image_with_exif(image):
@@ -69,6 +70,13 @@ def calculate_camera_parameters(image : Image):
 def show(img):
     cv2.imshow("img",img)
     cv2.waitKey()
+
+def main(imageData, params):
+    image = Image.open(io.BytesIO(imageData))
+    image = rotate_image_with_exif(image)
+    width, height, tall = calculate_box_size(image, params, show=False)
+    result = {'width': width, 'height': height, 'tall': tall}
+    return result
 
 if __name__ == '__main__':
     image = Image.open("modules/images_cali/bbox.jpg") # 이미지 테스트

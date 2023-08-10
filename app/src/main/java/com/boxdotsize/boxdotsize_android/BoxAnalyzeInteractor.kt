@@ -16,11 +16,14 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import softeer.gogumac.slide.retrofit.RetrofitClient
 import java.io.File
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+import org.json.JSONObject
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private var cameraParams: String? = null
-
     init {
         getCameraParams().observeForever {
             Toast.makeText(BoxDotSize.ApplicationContext(),"파라미터 가져옴",Toast.LENGTH_SHORT).show()
@@ -71,9 +74,17 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
         //TODO 여기서 분석 시작
 
-        val width=0f
-        val height=0f
-        val tall=0f
+        val python = Python.getInstance()
+        val pythonModule = python.getModule("box")
+
+        val imageData: ByteArray = file.readBytes()
+
+        val result: String = pythonModule.callAttr("main", imageData, cameraParams).toString()
+
+        val resultJson = JSONObject(result)
+        val width: Float = resultJson.getDouble("width").toFloat()
+        val height: Float = resultJson.getDouble("height").toFloat()
+        val tall: Float = resultJson.getDouble("tall").toFloat()
         //결과는 아래와 같이 반환( 넣으면 알아서 ui로 보내줘요~)
         listener.onResponse(width,height,tall)
 
