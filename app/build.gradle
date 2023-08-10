@@ -21,11 +21,19 @@ android {
         }
         python {
             version "3.8"
+            //본인 파이썬 위치
             buildPython "/Users/admin/anaconda3/bin/python"
+            pip{
+                install "-r", "requirements.txt"
+            }
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    sourceSets {
+        main {
+            python.srcDir "src/main/python"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
