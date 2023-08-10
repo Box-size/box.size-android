@@ -1,4 +1,4 @@
-package com.boxdotsize.boxdotsize_android
+package com.boxdotsize.boxdotsize_android.ui
 
 import android.os.Build
 import android.os.Bundle

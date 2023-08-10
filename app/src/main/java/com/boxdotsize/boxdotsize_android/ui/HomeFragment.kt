@@ -1,4 +1,4 @@
-package com.boxdotsize.boxdotsize_android
+package com.boxdotsize.boxdotsize_android.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.boxdotsize.boxdotsize_android.R
 import com.boxdotsize.boxdotsize_android.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
