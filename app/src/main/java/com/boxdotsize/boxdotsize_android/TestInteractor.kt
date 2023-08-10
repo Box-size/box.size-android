@@ -20,6 +20,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import softeer.gogumac.slide.retrofit.RetrofitClient
 import java.io.File
+import com.chaquo.python.PyObject
+import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
+import org.json.JSONObject
 
 class TestInteractor(private val listener: OnTestResultResponseListener) {
 
@@ -38,9 +42,26 @@ class TestInteractor(private val listener: OnTestResultResponseListener) {
     ) {
 
         //TODO 여기서 체커보드패턴 분석
+        //파이썬 코드 호출
+        val python = Python.getInstance()
+        //사용할 파이썬 파일에 calibration.py 등록
+        val pythonModule = python.getModule("calibration")
 
+        val imageData: ByteArray = file.readBytes()
+        //calibration.py 의 findParams 함수 호출
+        val params : String = pythonModule.callAttr("findParams", imageData).toString()
+
+        var result : Boolean = true
+        val resultJson = JSONObject(params)
+        //테스트 결과 실패면 false 반환
+        if(resultJson.getDouble("fx").toFloat() == 0f &&
+            resultJson.getDouble("fy").toFloat() == 0f &&
+            resultJson.getDouble("cx").toFloat() == 0f &&
+            resultJson.getDouble("cy").toFloat() == 0f){
+            result = false
+        }
         //결과는 아래와 같이 반 ( 넣으면 알아서 ui로 보내줘요~)
-        listener.onResponse(true,"message") //성공여부, 메시지
+        listener.onResponse(result,"message") //성공여부, 메시지
 
 
 //        this.focalLength ?: return

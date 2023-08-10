@@ -3,10 +3,34 @@ from PIL import Image
 import numpy as np
 from pebble import ProcessPool
 from concurrent.futures import TimeoutError
+from PIL.ExifTags import TAGS
+import io
 
 def chess(gray):
     flags = cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE + cv2.CALIB_CB_FAST_CHECK
     return cv2.findChessboardCorners(gray, (4,7), flags)
+
+def rotate_image_with_exif(image):
+    
+    try:
+        # 이미지의 Exif 메타데이터 읽기
+        exif = image._getexif()
+        if exif is not None:
+            for tag, value in exif.items():
+                tag_name = TAGS.get(tag, tag)
+                if tag_name == 'Orientation':
+                    if value == 3:
+                        image = image.rotate(180, expand=True)
+                    elif value == 6:
+                        image = image.rotate(270, expand=True)
+                    elif value == 8:
+                        image = image.rotate(90, expand=True)
+                    break
+    except AttributeError:
+        pass  # Exif 정보가 없는 경우
+
+    return image
+
 
 def findRT(image):
     # termination criteria
@@ -56,14 +80,27 @@ def findRT(image):
     #print(rvec, dist, fx, fy, cx, cy, sep="\n")
     return rvec[0], dist, fx, fy, cx, cy
 
-def findParams(image_PIL):
+def findParams(imageData):
     '''PIL이미지를 받아 camera parameters를 반환'''
 
     #cv2이미지로의 변환
+    image_PIL = Image.open(io.BytesIO(imageData))
+    image_PIL = rotate_image_with_exif(image_PIL)
     image_cv2 = np.array(image_PIL)
     image_cv2 = cv2.cvtColor(image_cv2, cv2.COLOR_RGB2BGR)
-
-    return findRT(image_cv2)
+    try:
+        rvec, dist, fx, fy, cx, cy = findRT(image_cv2)
+    except ValueError:
+        rvec, dist, fx, fy, cx, cy = [0,0,0], [0,0,0,0,0], 0, 0, 0, 0
+    params = {
+        "rvec": rvec.tolist(),
+        "dist": dist.tolist(),
+        "fx": fx,
+        "fy": fy,
+        "cx": cx,
+        "cy": cy
+    }
+    return params
     
 
 if __name__ == '__main__':
