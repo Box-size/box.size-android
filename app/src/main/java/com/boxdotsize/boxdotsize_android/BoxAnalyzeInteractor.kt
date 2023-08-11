@@ -12,8 +12,6 @@ import com.boxdotsize.boxdotsize_android.retrofit.BoxSizeAnalyzeService
 import com.boxdotsize.boxdotsize_android.retrofit.Params
 import com.boxdotsize.boxdotsize_android.room.AnalyzeResult
 import com.boxdotsize.boxdotsize_android.room.DBManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
@@ -89,24 +87,6 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
             val tall = res.tall
             DBManager.analyzeResultDao.addResult(
                 AnalyzeResult(
-                    id = 0,
-                    width = width,
-                    height = height,
-                    tall = tall
-                )
-            )
-            //DBManager.cameraParamDao.insertOrUpdate(params)
-            withContext(Dispatchers.Main) {
-                listener.onResponse(width, height, tall)//성공여부 ui로 전달
-
-
-        val width = 0f
-        val height = 0f
-        val tall = 0f
-        //결과는 아래와 같이 반환( 넣으면 알아서 ui로 보내줘요~)
-        CoroutineScope(Dispatchers.IO).launch {
-            DBManager.analyzeResultDao.addResult(
-                AnalyzeResult(
                     0,
                     width = width,
                     height = height,
@@ -114,6 +94,9 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
                     url = file.path
                 )
             )
+            //DBManager.cameraParamDao.insertOrUpdate(params)
+            withContext(Dispatchers.Main) {
+                listener.onResponse(width, height, tall)//성공여부 ui로 전달
             }
         }
     }
