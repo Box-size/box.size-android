@@ -17,6 +17,9 @@
         <action
             android:id="@+id/action_homeFragment_to_testFragment"
             app:destination="@id/testFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
@@ -30,4 +33,8 @@
         android:id="@+id/testFragment"
         android:name="com.boxdotsize.boxdotsize_android.ui.TestFragment"
         android:label="TestFragment" />
+    <fragment
+        android:id="@+id/recordFragment"
+        android:name="com.boxdotsize.boxdotsize_android.ui.RecordFragment"
+        android:label="RecordFragment" />
 </navigation>
