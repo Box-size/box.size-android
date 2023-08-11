@@ -36,6 +36,10 @@ class HomeFragment : Fragment() {
         binding.btnTest.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_testFragment)
         }
+
+        binding.btnGoRecord.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_recordFragment)
+        }
     }
 
     override fun onDestroyView() {

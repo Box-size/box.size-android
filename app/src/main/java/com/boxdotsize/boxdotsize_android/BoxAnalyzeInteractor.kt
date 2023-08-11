@@ -10,7 +10,12 @@ import retrofit2.Callback
 import retrofit2.Response
 import com.boxdotsize.boxdotsize_android.retrofit.BoxSizeAnalyzeService
 import com.boxdotsize.boxdotsize_android.retrofit.Params
+import com.boxdotsize.boxdotsize_android.room.AnalyzeResult
 import com.boxdotsize.boxdotsize_android.room.DBManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -23,7 +28,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     init {
         getCameraParams().observeForever {
-            Toast.makeText(BoxDotSize.ApplicationContext(),"파라미터 가져옴",Toast.LENGTH_SHORT).show()
+            Toast.makeText(BoxDotSize.ApplicationContext(), "파라미터 가져옴", Toast.LENGTH_SHORT).show()
             cameraParams = it?.params
         }
     }
@@ -71,11 +76,25 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
         //TODO 여기서 분석 시작
 
-        val width=0f
-        val height=0f
-        val tall=0f
+        val width = 0f
+        val height = 0f
+        val tall = 0f
         //결과는 아래와 같이 반환( 넣으면 알아서 ui로 보내줘요~)
-        listener.onResponse(width,height,tall)
+        CoroutineScope(Dispatchers.IO).launch {
+            DBManager.analyzeResultDao.addResult(
+                AnalyzeResult(
+                    0,
+                    width = width,
+                    height = height,
+                    tall = tall,
+                    url = file.path
+                )
+            )
+
+            withContext(Dispatchers.Main) {
+                listener.onResponse(width, height, tall)
+            }
+        }
 
 
 //        this.focalLength ?: return
