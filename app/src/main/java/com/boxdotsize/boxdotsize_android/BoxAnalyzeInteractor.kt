@@ -85,15 +85,17 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
             val width = res.width
             val height = res.height
             val tall = res.tall
-            DBManager.analyzeResultDao.addResult(
-                AnalyzeResult(
-                    0,
-                    width = width,
-                    height = height,
-                    tall = tall,
-                    url = file.path
+            if(width>5&&height>5&&tall>5){
+                DBManager.analyzeResultDao.addResult(
+                    AnalyzeResult(
+                        0,
+                        width = width,
+                        height = height,
+                        tall = tall,
+                        url = file.path
+                    )
                 )
-            )
+            }
             //DBManager.cameraParamDao.insertOrUpdate(params)
             withContext(Dispatchers.Main) {
                 listener.onResponse(width, height, tall)//성공여부 ui로 전달
