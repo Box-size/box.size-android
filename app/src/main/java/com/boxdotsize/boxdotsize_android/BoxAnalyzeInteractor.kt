@@ -29,9 +29,10 @@ import org.json.JSONObject
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private var cameraParams: String? = null
+
     init {
         getCameraParams().observeForever {
-            Toast.makeText(BoxDotSize.ApplicationContext(),"파라미터 가져옴",Toast.LENGTH_SHORT).show()
+            Toast.makeText(BoxDotSize.ApplicationContext(), "파라미터 가져옴", Toast.LENGTH_SHORT).show()
             cameraParams = it?.params
         }
     }
@@ -76,20 +77,30 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     fun requestBoxAnalyze(
         file: File
     ) {
-        cameraParams?:return
+        cameraParams ?: return
         CoroutineScope(Dispatchers.IO).launch {
-            val res=analyze(file,cameraParams!!)
-            val width=res.width
-            val height=res.height
-            val tall=res.tall
+            val res = analyze(file, cameraParams!!)
+            val width = res.width
+            val height = res.height
+            val tall = res.tall
+            DBManager.analyzeResultDao.addResult(
+                AnalyzeResult(
+                    id = 0,
+                    width = width,
+                    height = height,
+                    tall = tall
+                )
+            )
             //DBManager.cameraParamDao.insertOrUpdate(params)
             withContext(Dispatchers.Main) {
-                listener.onResponse(width,height,tall))//성공여부 ui로 전달
+                listener.onResponse(width, height, tall)//성공여부 ui로 전달
+
+
             }
         }
     }
 
-    private fun analyze(file:File,params: String):BoxSize{
+    private fun analyze(file: File, params: String): BoxSize {
         //TODO 여기서 분석 시작
         val python = Python.getInstance()
         //사용할 파이썬 파일에 box.py 등록
