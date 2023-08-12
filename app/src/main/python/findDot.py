@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import math
 
 """
@@ -201,10 +201,10 @@ def adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, a
 
     points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
     new_points = []
-    x_ratio = ((box[0][2] - box[0][0])/original_ratio[0])
-    y_ratio = ((box[0][3] - box[0][1])/original_ratio[1])
+    x_ratio = ((box[2] - box[0])/original_ratio[0])
+    y_ratio = ((box[3] - box[1])/original_ratio[1])
     for point in points:
-        new_points.append((box[0][0] + point[0] * x_ratio, box[0][1] + point[1] * y_ratio - (away_y * y_ratio)))
+        new_points.append((box[0] + point[0] * x_ratio, box[1] + point[1] * y_ratio - (away_y * y_ratio)))
 
     return new_points[0], new_points[1], new_points[2], new_points[3], new_points[4], new_points[5]
 
@@ -217,7 +217,8 @@ def find(edges, original, box, original_ratio, params, show=False):
     # paramFile = open("modules/params.bin",'rb')
     # params = pickle.load(paramFile)   # tuple: (rvec, dist, fx, fy, cx, cy)
     # paramFile.close()
-
+    print(params)
+    print(params[2:])
     fx, fy, cx, cy = params[2:]
     dist = params[1]
     rvec = params[0]

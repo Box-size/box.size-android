@@ -1,17 +1,9 @@
-import sys
-import os
-import io
-import json
-# box.py 파일이 있는 디렉토리를 모듈 검색 경로에 추가합니다.
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
+import io, json
 
 from PIL import Image
 import numpy as np
 import cv2
-import detector, simplifier, findDot, calibration
+import simplifier, findDot, calibration
 from PIL.ExifTags import TAGS
 
 def rotate_image_with_exif(image):
@@ -36,16 +28,19 @@ def rotate_image_with_exif(image):
     return image
 
 
-def calculate_box_size(image : Image, params, show=False):
+def calculate_box_size(original : Image, crop : Image, params, xyxy, show=False):
 
-    image = np.array(image)   # image를 cv2에서 사용 가능하게 변환
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    original = np.array(original)   # image를 cv2에서 사용 가능하게 변환
+    original = cv2.cvtColor(original, cv2.COLOR_RGB2BGR)
 
-    box, xyxy = detector.detect(image) #박스 감지하고 crop 리턴
+    crop = np.array(crop)   # image를 cv2에서 사용 가능하게 변환
+    crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
 
-    box, original_ratio = simplifier.simplify(box) #배경 지우고, 외곽선 검출
+    # box, xyxy = detector.detect(image) #박스 감지하고 crop 리턴
 
-    w, h, t = findDot.find(box, image, xyxy, original_ratio, params, show=show)  #점 찾고 길이 반환 (show=True 시 과정 이미지 보임)
+    crop, original_ratio = simplifier.simplify(crop) #배경 지우고, 외곽선 검출
+
+    w, h, t = findDot.find(crop, original, xyxy, original_ratio, params, show=show)  #점 찾고 길이 반환 (show=True 시 과정 이미지 보임)
 
     print("최종 계산 결과 w, h, t:", w,h,t)
 
@@ -71,10 +66,22 @@ def show(img):
     cv2.imshow("img",img)
     cv2.waitKey()
 
-def main(imageData, params):
-    image = Image.open(io.BytesIO(imageData))
-    image = rotate_image_with_exif(image)
-    width, height, tall = calculate_box_size(image, params, show=False)
+def main(original_image_data, crop_image_data, params, xyxy):
+    original = Image.open(io.BytesIO(original_image_data))
+    crop = Image.open(io.BytesIO(crop_image_data))
+    original = rotate_image_with_exif(original)
+    crop = rotate_image_with_exif(crop)
+
+    try:
+        params_dict = json.loads(params)
+        params_list = [np.array(params_dict["rvec"]), np.array(params_dict["dist"]), params_dict["fx"], params_dict["fy"], params_dict["cx"], params_dict["cy"]]
+    except Exception:
+        return {'width': 0, 'height': 0, 'tall': 0}
+
+    try:
+        width, height, tall = calculate_box_size(original, crop, params_list, xyxy, show=False)
+    except Exception:
+        width, height, tall = 0, 0, 0
     result = {'width': width, 'height': height, 'tall': tall}
     return result
 

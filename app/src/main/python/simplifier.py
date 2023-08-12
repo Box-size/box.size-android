@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-from rembg import remove
 
 def simplify(input):
     '''이미지의 배경을 제거하고 외곽선을 검출'''
@@ -34,8 +33,10 @@ def simplify(input):
     input = np.clip((1+alpha) * input - 128 * alpha, 0, 255).astype(np.uint8)
     
     # 배경 제거, 이때 배경은 검정
-    output = remove(input,
-        bgcolor=[0,0,0,255])
+    # output = remove(input,
+    #     bgcolor=[0,0,0,255])
+    # TODO: 여기서 opencv 써서 배경 제거
+    output = input
     
 
     # Canny를 통해 외곽선만 검출(threshold는 통상적인 값, 추후 실험을 통해 변경 필요)

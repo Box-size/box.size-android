@@ -77,6 +77,10 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private fun analyze(file: File, params: String): BoxSize {
         //TODO 여기서 분석 시작
+        
+        // TODO: YOLO 함수 작성
+        val detectResult = detectBox(file)
+
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(BoxDotSize.ApplicationContext()))
         }
@@ -85,10 +89,11 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         //사용할 파이썬 파일에 box.py 등록
         val pythonModule = python.getModule("box")
         Log.d(TAG, "파이썬 호출2")
-        val imageData: ByteArray = file.readBytes()
+        val originalImageData: ByteArray = detectResult.original.readBytes()
+        val cropImageData: ByteArray = detectResult.crop.readBytes()
         //box.py 의 main 함수 호출
         Log.d(TAG, "파이썬 호출3 ")
-        val result: String = pythonModule.callAttr("main", imageData, params).toString()
+        val result: String = pythonModule.callAttr("main", originalImageData, cropImageData, params, detectResult.xyxy).toString()
         Log.d(TAG, "파이썬 결과: $result")
         //결과값 Json 객체화
         val resultJson = JSONObject(result)
