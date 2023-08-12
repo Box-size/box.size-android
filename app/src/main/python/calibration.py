@@ -1,8 +1,6 @@
 import cv2
 from PIL import Image
 import numpy as np
-from pebble import ProcessPool
-from concurrent.futures import TimeoutError
 from PIL.ExifTags import TAGS
 import io
 
@@ -44,19 +42,8 @@ def findRT(image):
 
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 
-    #타임아웃 20초로 스케쥴 예약(멀티프로세싱 이용)
-    with ProcessPool() as pool:
-        future = pool.schedule(chess, args=[gray], timeout=20)
-
-    #결과값을 시간 내에 가져왔을 경우
-    try:
-        ret, corners = future.result()
-    except TimeoutError as error:
-        ret, corners = False, None
-        print("Timeout. skipped.")
-    except Exception as error:
-        ret, corners = False, None
-        print("Function raised %s" % error)
+    #타임아웃 20초로 스케쥴 예약(멀티프로세싱 이용) -> 삭제
+    ret, corners = chess(gray)
 
     # If found, add object points, image points (after refining them)
     if ret == True:
@@ -74,7 +61,7 @@ def findRT(image):
         fx, fy = mtx[0][0], mtx[1][1]
         cx, cy = mtx[0][2], mtx[1][2]
     else:
-        raise ValueError("체스보드를 찾지못했습니다.")
+        raise ValueError
         #TODO : 실패하였을 경우 작성하기.
 
     #print(rvec, dist, fx, fy, cx, cy, sep="\n")

@@ -27,6 +27,7 @@ android {
             pip{
                 install "numpy"
                 install "opencv-python"
+                install "pillow"
             }
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

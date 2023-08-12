@@ -1,5 +1,6 @@
 package com.boxdotsize.boxdotsize_android
 
+import android.util.Log
 import com.boxdotsize.boxdotsize_android.retrofit.Params
 import com.boxdotsize.boxdotsize_android.room.DBManager
 import kotlinx.coroutines.CoroutineScope
@@ -7,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import com.chaquo.python.PyObject
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import org.json.JSONObject
@@ -25,6 +25,9 @@ class TestInteractor(private val listener: OnTestResultResponseListener) {
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val res=analyze(file)
+            if (!res.result) {
+                // TODO: 인식 실패로 돌아왔을 떄 처리 필요
+            }
             val params = Params(params = res.params)
             DBManager.cameraParamDao.insertOrUpdate(params)
             withContext(Dispatchers.Main) {
@@ -36,6 +39,10 @@ class TestInteractor(private val listener: OnTestResultResponseListener) {
     private fun analyze(file: File): AnalyzeResult{
 
         //TODO 여기서 체커보드패턴 분석
+        if(!Python.isStarted()){
+            Python.start(AndroidPlatform(BoxDotSize.ApplicationContext()))
+        }
+
         //파이썬 코드 호출
         val python = Python.getInstance()
         //사용할 파이썬 파일에 calibration.py 등록
@@ -44,6 +51,7 @@ class TestInteractor(private val listener: OnTestResultResponseListener) {
         val imageData: ByteArray = file.readBytes()
         //calibration.py 의 findParams 함수 호출
         val params : String = pythonModule.callAttr("findParams", imageData).toString()
+        Log.d("cameraParams", params)
 
         var result : Boolean = true
         val resultJson = JSONObject(params)
