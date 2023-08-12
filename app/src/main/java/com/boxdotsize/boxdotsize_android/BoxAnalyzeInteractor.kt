@@ -84,7 +84,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
             val tall=res.tall
             //DBManager.cameraParamDao.insertOrUpdate(params)
             withContext(Dispatchers.Main) {
-                listener.onResponse(width,height,tall))//성공여부 ui로 전달
+                listener.onResponse(width,height,tall)//성공여부 ui로 전달
             }
         }
     }
