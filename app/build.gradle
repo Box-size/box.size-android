@@ -24,7 +24,7 @@ android {
                 src false
             }
             version "3.8"
-            pip{
+            pip {
                 install "numpy"
                 install "opencv-python"
                 install "pillow"
@@ -50,8 +50,8 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
-    viewBinding{
-        enabled=true
+    viewBinding {
+        enabled = true
     }
 }
 

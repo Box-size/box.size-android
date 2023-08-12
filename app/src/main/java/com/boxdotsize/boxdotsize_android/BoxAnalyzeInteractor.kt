@@ -15,6 +15,7 @@ import com.chaquo.python.Python
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.json.JSONObject
+import java.lang.Exception
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
@@ -29,33 +30,6 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private var focalLength: Float? = null
 
-    private val dummy = "{\n" +
-            "      \"rvec\": [\n" +
-            "        [\n" +
-            "          0.0313322402852821\n" +
-            "        ],\n" +
-            "        [\n" +
-            "          -0.004681713345008444\n" +
-            "        ],\n" +
-            "        [\n" +
-            "          1.5518842368128438\n" +
-            "        ]\n" +
-            "      ],\n" +
-            "      \"dist\": [\n" +
-            "        [\n" +
-            "          0.05691908804368303,\n" +
-            "          -0.03639767315057699,\n" +
-            "          0.0002100897003352741,\n" +
-            "          -0.0031919270416946627,\n" +
-            "          0.002166361341437373\n" +
-            "        ]\n" +
-            "      ],\n" +
-            "      \"fx\": 1214.6697626787393,\n" +
-            "      \"fy\": 1216.6780083151727,\n" +
-            "      \"cx\": 1992.899518084872,\n" +
-            "      \"cy\": 1469.4521814467491\n" +
-            "    }"
-
     interface OnBoxAnalyzeResponseListener {
         fun onResponse(width: Float, height: Float, tall: Float)
 
@@ -67,11 +41,20 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     ) {
         cameraParams ?: return
         CoroutineScope(Dispatchers.IO).launch {
-            val res = analyze(file, cameraParams!!)
+
+            var res = BoxSize(0f, 0f, 0f)
+            try {
+                res = analyze(file, cameraParams!!)
+            } catch (e: Exception) {
+                listener.onError()
+                return@launch
+            }
+
             val width = res.width
             val height = res.height
             val tall = res.tall
-            if(width>5&&height>5&&tall>5){
+
+            if (width > 5 && height > 5 && tall > 5) {
                 DBManager.analyzeResultDao.addResult(
                     AnalyzeResult(
                         0,
@@ -82,7 +65,6 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
                     )
                 )
             }
-            //DBManager.cameraParamDao.insertOrUpdate(params)
             withContext(Dispatchers.Main) {
                 listener.onResponse(width, height, tall)//성공여부 ui로 전달
             }
@@ -97,7 +79,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
         val imageData: ByteArray = file.readBytes()
         //box.py 의 main 함수 호출
-        val result: String = pythonModule.callAttr("main", imageData, cameraParams).toString()
+        val result: String = pythonModule.callAttr("main", imageData, params).toString()
         //결과값 Json 객체화
         val resultJson = JSONObject(result)
         val width: Float = resultJson.getDouble("width").toFloat()

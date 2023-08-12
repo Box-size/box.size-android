@@ -14,10 +14,10 @@ interface AnalyzeResultDao {
 
 
     @Insert
-    fun addResult(result:AnalyzeResult)
+    fun addResult(result: AnalyzeResult)
 
     @Delete
-    fun deleteResult(result:AnalyzeResult)
+    fun deleteResult(result: AnalyzeResult)
 
     @Query("DELETE FROM analyze_result")
     fun deleteAll()
