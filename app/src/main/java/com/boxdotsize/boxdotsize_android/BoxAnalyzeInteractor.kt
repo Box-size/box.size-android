@@ -1,15 +1,8 @@
 package com.boxdotsize.boxdotsize_android
 
-import android.graphics.BitmapFactory
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
-import com.boxdotsize.boxdotsize_android.retrofit.BoxAnalyzeResponseDTO
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import com.boxdotsize.boxdotsize_android.retrofit.BoxSizeAnalyzeService
-import com.boxdotsize.boxdotsize_android.retrofit.Params
+import com.boxdotsize.boxdotsize_android.room.Params
 import com.boxdotsize.boxdotsize_android.room.AnalyzeResult
 import com.boxdotsize.boxdotsize_android.room.DBManager
 import kotlinx.coroutines.launch
@@ -17,15 +10,10 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import softeer.gogumac.slide.retrofit.RetrofitClient
 import java.io.File
-import com.chaquo.python.PyObject
 import com.chaquo.python.Python
-import com.chaquo.python.android.AndroidPlatform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
@@ -38,8 +26,6 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
             cameraParams = it?.params
         }
     }
-
-    private val service = RetrofitClient.getRetrofit().create(BoxSizeAnalyzeService::class.java)
 
     private var focalLength: Float? = null
 

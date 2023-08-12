@@ -1,4 +1,4 @@
-package com.boxdotsize.boxdotsize_android.retrofit
+package com.boxdotsize.boxdotsize_android.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

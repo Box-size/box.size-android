@@ -1,7 +1,6 @@
 package com.boxdotsize.boxdotsize_android
 
-import android.util.Log
-import com.boxdotsize.boxdotsize_android.retrofit.Params
+import com.boxdotsize.boxdotsize_android.room.Params
 import com.boxdotsize.boxdotsize_android.room.DBManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +8,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import com.chaquo.python.Python
-import com.chaquo.python.android.AndroidPlatform
 import org.json.JSONObject
 
 class TestInteractor(private val listener: OnTestResultResponseListener) {
