@@ -224,12 +224,12 @@ def find(edges, original, box, original_ratio, params, show=False):
 
     points = find_points_from_edges_image(edges)
 
-    if(show):
-        # 찾은 점 시각화
-        plt.imshow(edges)
-        for x, y in points:
-            plt.scatter(x, y, color='red', s=10)
-        plt.show()
+    # if(show):
+    #     # 찾은 점 시각화
+    #     plt.imshow(edges)
+    #     for x, y in points:
+    #         plt.scatter(x, y, color='red', s=10)
+    #     plt.show()
 
     if(len(points) > 6 or len(points) <= 0):
         return (0, 0, 0)
@@ -241,20 +241,20 @@ def find(edges, original, box, original_ratio, params, show=False):
     away_x, away_y = min(left_top[0], left_bottom[0]), top[1]
     top, bottom, left_top, left_bottom, right_top, right_bottom = adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, away_y, original_ratio ,box)
 
-    if(show):
-        new_points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
-        plt.imshow(original)
-        for x, y in new_points:
-            plt.scatter(x, y, color='red', s=10)
-        plt.show()
+    # if(show):
+    #     new_points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
+    #     plt.imshow(original)
+    #     for x, y in new_points:
+    #         plt.scatter(x, y, color='red', s=10)
+    #     plt.show()
 
     #상자가 이미지 밑부터 어디까지 떨어졌는지 비율
     bottom_ratio, line = linear_interpolation(top, bottom, original)
-    if(show):
-        plt.imshow(original)
-        for x, y in line:
-            plt.scatter(x, y, color='red', s=10)
-        plt.show()
+    # if(show):
+    #     plt.imshow(original)
+    #     for x, y in line:
+    #         plt.scatter(x, y, color='red', s=10)
+    #     plt.show()
     #상자 왼쪽밑 ~ 오른쪽위 거리
     diagonal = calc_diagonal(bottom, top)
 

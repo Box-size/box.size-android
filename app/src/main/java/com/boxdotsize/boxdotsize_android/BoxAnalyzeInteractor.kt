@@ -1,5 +1,6 @@
 package com.boxdotsize.boxdotsize_android
 
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import com.boxdotsize.boxdotsize_android.room.Params
@@ -12,6 +13,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
 import com.chaquo.python.Python
+import com.chaquo.python.android.AndroidPlatform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.json.JSONObject
@@ -21,6 +23,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private var cameraParams: String? = null
 
+    private val TAG = "BoxAnalyze"
     init {
         getCameraParams().observeForever {
             Toast.makeText(BoxDotSize.ApplicationContext(), "파라미터 가져옴", Toast.LENGTH_SHORT).show()
@@ -46,6 +49,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
             try {
                 res = analyze(file, cameraParams!!)
             } catch (e: Exception) {
+                Log.e(TAG , e.stackTraceToString())
                 listener.onError()
                 return@launch
             }
@@ -73,13 +77,19 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private fun analyze(file: File, params: String): BoxSize {
         //TODO 여기서 분석 시작
+        if (!Python.isStarted()) {
+            Python.start(AndroidPlatform(BoxDotSize.ApplicationContext()))
+        }
         val python = Python.getInstance()
+        Log.d(TAG, "파이썬 호출1")
         //사용할 파이썬 파일에 box.py 등록
         val pythonModule = python.getModule("box")
-
+        Log.d(TAG, "파이썬 호출2")
         val imageData: ByteArray = file.readBytes()
         //box.py 의 main 함수 호출
+        Log.d(TAG, "파이썬 호출3 ")
         val result: String = pythonModule.callAttr("main", imageData, params).toString()
+        Log.d(TAG, "파이썬 결과: $result")
         //결과값 Json 객체화
         val resultJson = JSONObject(result)
         val width: Float = resultJson.getDouble("width").toFloat()

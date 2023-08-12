@@ -16,7 +16,7 @@ import org.json.JSONObject
 
 class TestInteractor(private val listener: OnTestResultResponseListener) {
 
-    private val timeoutLimit=20000L
+    private val timeoutLimit = 20000L
 
     interface OnTestResultResponseListener {
         fun onResponse(isTestSuccess: Boolean, msg: String = "")

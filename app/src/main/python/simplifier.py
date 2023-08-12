@@ -1,5 +1,5 @@
 import numpy as np
-import cv2, os
+import cv2
 from rembg import remove
 
 def simplify(input):

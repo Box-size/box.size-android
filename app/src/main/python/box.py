@@ -11,7 +11,7 @@ sys.path.append(parent_dir)
 from PIL import Image
 import numpy as np
 import cv2
-from python import detector, simplifier, findDot, calibration
+import detector, simplifier, findDot, calibration
 from PIL.ExifTags import TAGS
 
 def rotate_image_with_exif(image):

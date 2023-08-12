@@ -109,13 +109,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding?.pvVideo?.setOnClickListener {
-            Toast.makeText(requireContext(), "HELLO", Toast.LENGTH_SHORT).show()
-            takePhoto()
-        }
-
-
     }
 
     private fun subscribeToSubject() {
@@ -174,11 +167,10 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
                     val width = imageBitmap.width
                     val height = imageBitmap.height
-
                     val msg = "Photo capture succeeded: ${output.savedUri} $width $height"
+                    Log.d(TAG, msg)
                     interactor?.requestBoxAnalyze(file)
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
                 }
             }
         )
@@ -201,7 +193,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 ) {
                     val focalLength = result.get(CaptureResult.LENS_FOCAL_LENGTH) ?: return
                     interactor?.setFocalLength(focalLength)
-                    //Log.d("focal",focalLength.toString())
+//                    Log.d("focal",focalLength.toString())
                     observable.onNext(focalLength)
                     super.onCaptureCompleted(session, request, result)
                 }
