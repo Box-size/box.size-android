@@ -16,7 +16,7 @@ import org.json.JSONObject
 
 class TestInteractor(private val listener: OnTestResultResponseListener) {
 
-    private val timeoutLimit=2000L
+    private val timeoutLimit=20000L
 
     interface OnTestResultResponseListener {
         fun onResponse(isTestSuccess: Boolean, msg: String = "")
@@ -35,11 +35,12 @@ class TestInteractor(private val listener: OnTestResultResponseListener) {
                         withContext(Dispatchers.Main) {
                             listener.onResponse(false, "analyze fail")
                         }
-                    }
-                    val params = Params(params = res.params)
-                    DBManager.cameraParamDao.insertOrUpdate(params)
-                    withContext(Dispatchers.Main) {
-                        listener.onResponse(true, "save result")//성공여부 ui로 전달
+                    } else {
+                        val params = Params(params = res.params)
+                        DBManager.cameraParamDao.insertOrUpdate(params)
+                        withContext(Dispatchers.Main) {
+                            listener.onResponse(true, "save result")//성공여부 ui로 전달
+                        }
                     }
                 }
             } catch (e: TimeoutCancellationException) {
