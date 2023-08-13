@@ -119,8 +119,42 @@ def find_points_from_edges_image(edges):
             x, y = point[0]
             
             points.append((x, y))
+            
+    # y좌표가 가장 큰 점
+    bottom = max(points, key=lambda p: p[1])
 
-    return points
+    # y좌표가 가장 작은 점
+    top = min(points, key=lambda p: p[1])
+
+    # x좌표가 가장 작으면서 y좌표가 가장 작은 점 10개
+    x_min_points = sorted(points, key=lambda p: (p[0], p[1]))[:10]
+
+    # x좌표가 가장 크면서 y좌표가 가장 큰 점 10개
+    x_max_points = sorted(points, key=lambda p: (-p[0], -p[1]))[:10]
+
+    # x좌표가 가장 작은 점 10개중 y좌표가 가장 작은 점
+    left_top = min(x_min_points, key=lambda p: p[1])
+
+    # x좌표가 가장 큰 점 10개중 y좌표가 가장 큰 점
+    right_bottom = max(x_max_points, key=lambda p: p[1])
+
+
+    left_bottom = max(x_min_points, key=lambda p: p[1])
+
+    right_top = min(x_max_points, key=lambda p: p[1])
+
+
+    # 결과를 new_points 배열에 넣어줌
+    new_points = []
+    new_points.append(top)
+    new_points.append(bottom)
+    new_points.append(left_top)
+    new_points.append(left_bottom)
+    new_points.append(right_top)
+    new_points.append(right_bottom)
+
+
+    return new_points
 
 
 def calculate_parameters(fx, fy, cx, cy, dist, top, bottom, left_top, left_bottom, right_top, right_bottom, width, height, tall):
