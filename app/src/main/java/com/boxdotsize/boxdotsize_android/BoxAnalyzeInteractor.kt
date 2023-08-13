@@ -17,9 +17,11 @@ import okhttp3.RequestBody
 import java.io.File
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.objects.DetectedObject
 import com.google.mlkit.vision.objects.ObjectDetection
+import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -138,12 +140,21 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         return suspendCancellableCoroutine { continuation ->
             val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@suspendCancellableCoroutine
             val image = InputImage.fromBitmap(bitmap, 0)
-            val options = ObjectDetectorOptions.Builder()
-                .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
-                .enableMultipleObjects()
-                .enableClassification()
+
+            val localModel = LocalModel.Builder()
+                .setAssetFilePath("model.tflite")
                 .build()
-            val objectDetector = ObjectDetection.getClient(options)
+
+            // Multiple object detection in static images
+            val customObjectDetectorOptions = CustomObjectDetectorOptions.Builder(localModel)
+                    .setDetectorMode(CustomObjectDetectorOptions.SINGLE_IMAGE_MODE)
+                    .enableMultipleObjects()
+                    .enableClassification()
+                    .setClassificationConfidenceThreshold(0.5f)
+                    .setMaxPerObjectLabelCount(3)
+                    .build()
+
+            val objectDetector = ObjectDetection.getClient(customObjectDetectorOptions)
             objectDetector.process(image)
                 .addOnSuccessListener { detectedObjects ->
                     val xyxys = mutableListOf<List<Double>>()
