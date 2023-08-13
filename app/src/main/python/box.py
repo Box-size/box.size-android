@@ -74,16 +74,26 @@ def main(original_image_data, crop_image_data, params, xyxy):
     crop = rotate_image_with_exif(crop)
 
     try:
-        params_dict = json.loads(params)
-        params_list = [np.array(params_dict["rvec"]), np.array(params_dict["dist"]), params_dict["fx"], params_dict["fy"], params_dict["cx"], params_dict["cy"]]
+        json_params = params.replace("'", '"')
+        params_dict = json.loads(json_params)
+        params_list = [
+            np.array(params_dict["rvec"]),
+            np.array(params_dict["dist"]),
+            params_dict["fx"],
+            params_dict["fy"],
+            params_dict["cx"],
+            params_dict["cy"]
+        ]
     except Exception:
+        print("params 에러 -> 0 리턴함")
         return {'width': 0, 'height': 0, 'tall': 0}
 
-    try:
-        width, height, tall = calculate_box_size(original, crop, params_list, xyxy, show=False)
-    except Exception:
-        width, height, tall = 0, 0, 0
+    # try:
+    width, height, tall = calculate_box_size(original, crop, params_list, xyxy, show=False)
+    # except Exception:
+    #     width, height, tall = 0, 0, 0
     result = {'width': width, 'height': height, 'tall': tall}
+    print("최종 결과 주기")
     return result
 
 if __name__ == '__main__':
