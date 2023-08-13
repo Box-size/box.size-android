@@ -28,7 +28,6 @@ android {
                 install "numpy"
                 install "opencv-python"
                 install "pillow"
-                //install "ultralytics"
             }
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

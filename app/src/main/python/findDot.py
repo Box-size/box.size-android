@@ -236,10 +236,10 @@ def adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, a
 
     points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
     new_points = []
-    x_ratio = ((box[2] - box[0])/original_ratio[0])
-    y_ratio = ((box[3] - box[1])/original_ratio[1])
+    # x_ratio = ((box[0][2] - box[0][0])/original_ratio[0])
+    # y_ratio = ((box[0][3] - box[0][1])/original_ratio[1])
     for point in points:
-        new_points.append((box[0] + point[0] * x_ratio, box[1] + point[1] * y_ratio - (away_y * y_ratio)))
+        new_points.append((box[0][0] + point[0], box[0][1] + point[1]))
 
     return new_points[0], new_points[1], new_points[2], new_points[3], new_points[4], new_points[5]
 
