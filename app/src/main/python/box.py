@@ -41,8 +41,6 @@ def calculate_box_size(original : Image, crop : Image, params, xyxy, show=False)
 
     crop, original_ratio = simplifier.simplify(crop) #배경 지우고, 외곽선 검출
 
-    print("simplify")
-
     w, h, t = findDot.find(crop, original, xyxy, original_ratio, params, show=show)  #점 찾고 길이 반환 (show=True 시 과정 이미지 보임)
 
     print("최종 계산 결과 w, h, t:", w,h,t)
@@ -90,6 +88,11 @@ def main(original_image_data, crop_image_data, params, xyxy):
         print("params 에러 -> 0 리턴함")
         return {'width': 0, 'height': 0, 'tall': 0}
 
+    try:
+        xyxy = json.loads(xyxy)
+    except Exception:
+        print("xyxy 에러 -> 0 리턴함")
+        return {'width': 0, 'height': 0, 'tall': 0}
     # try:
     width, height, tall = calculate_box_size(original, crop, params_list, xyxy, show=False)
     # except Exception:

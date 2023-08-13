@@ -16,6 +16,7 @@ import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.json.JSONArray
 import org.json.JSONObject
 import java.lang.Exception
 
@@ -89,11 +90,15 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         //사용할 파이썬 파일에 box.py 등록
         val pythonModule = python.getModule("box")
         Log.d(TAG, "파이썬 호출2")
+
         val originalImageData: ByteArray = detectResult.original.readBytes()
         val cropImageData: ByteArray = detectResult.crop.readBytes()
+
+        val xyxyJsonString = JSONArray(detectResult.xyxy).toString()
+
         //box.py 의 main 함수 호출
         Log.d(TAG, "파이썬 호출3 ")
-        val result: String = pythonModule.callAttr("main", originalImageData, cropImageData, params, detectResult.xyxy).toString()
+        val result: String = pythonModule.callAttr("main", originalImageData, cropImageData, params, xyxyJsonString).toString()
         Log.d(TAG, "파이썬 결과: $result")
         //결과값 Json 객체화
         val resultJson = JSONObject(result)

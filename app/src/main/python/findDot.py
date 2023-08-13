@@ -252,15 +252,12 @@ def find(edges, original, box, original_ratio, params, show=False):
     # paramFile = open("modules/params.bin",'rb')
     # params = pickle.load(paramFile)   # tuple: (rvec, dist, fx, fy, cx, cy)
     # paramFile.close()
-    print(params)
-    print(params[2:])
     fx, fy, cx, cy = params[2:]
     dist = params[1]
     rvec = params[0]
 
     points = find_points_from_edges_image(edges)
 
-    print("find_points")
 
     # if(show):
     #     # 찾은 점 시각화
@@ -274,17 +271,15 @@ def find(edges, original, box, original_ratio, params, show=False):
 
     top, bottom, left_top, left_bottom, right_top, right_bottom = classify_points(points)
     #좌표 원본이미지에 맞게 보정
-    print("find dot")
     #좌표 조정
     away_x, away_y = min(left_top[0], left_bottom[0]), top[1]
 
     try:
         top, bottom, left_top, left_bottom, right_top, right_bottom = adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, away_y, original_ratio ,box)
-    except:
+    except Exception:
         print("except")
         return (0, 0, 0)
 
-    print("adjust")
 
     # if(show):
     #     new_points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
@@ -303,7 +298,6 @@ def find(edges, original, box, original_ratio, params, show=False):
     #상자 왼쪽밑 ~ 오른쪽위 거리
     diagonal = calc_diagonal(bottom, top)
 
-    print("calc_ratio")
 
     #이미지 꼭지점 좌표를 토대로 구한 가로, 세로, 높이
     width, height, tall, img_width = calc_pixel_w_h(top, bottom, left_top, left_bottom, right_top, right_bottom, diagonal, bottom_ratio)
@@ -311,7 +305,6 @@ def find(edges, original, box, original_ratio, params, show=False):
 
     #외부 파라미터 추정
     _retval, rvec, tvec = calculate_parameters(fx, fy, cx, cy, dist, top, bottom, left_top, left_bottom, right_top, right_bottom, width, height, tall)
-    print("tvec : " , tvec)
   
     if(show):
         # 시각화용 코드
