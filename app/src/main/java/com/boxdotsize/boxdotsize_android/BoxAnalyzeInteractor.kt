@@ -1,5 +1,8 @@
 package com.boxdotsize.boxdotsize_android
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
@@ -14,17 +17,25 @@ import okhttp3.RequestBody
 import java.io.File
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.objects.DetectedObject
+import com.google.mlkit.vision.objects.ObjectDetection
+import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.FileOutputStream
 import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private var cameraParams: String? = null
 
     private val TAG = "BoxAnalyze"
+
     init {
         getCameraParams().observeForever {
             Toast.makeText(BoxDotSize.ApplicationContext(), "파라미터 가져옴", Toast.LENGTH_SHORT).show()
@@ -48,9 +59,13 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
             var res = BoxSize(0f, 0f, 0f)
             try {
+                val test = runObjectDetection(file) { cropedFiles, xyxys ->
+                    Log.d("checkchekc", cropedFiles.toString() + "\n" + xyxys.toString())
+//                    debugPrint(it)
+                }
                 res = analyze(file, cameraParams!!)
             } catch (e: Exception) {
-                Log.e(TAG , e.stackTraceToString())
+                Log.e(TAG, e.stackTraceToString())
                 listener.onError()
                 return@launch
             }
@@ -78,7 +93,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
     private fun analyze(file: File, params: String): BoxSize {
         //TODO 여기서 분석 시작
-        
+
         // TODO: YOLO 함수 작성
         val detectResult = detectBox(file)
 
@@ -98,7 +113,9 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
         //box.py 의 main 함수 호출
         Log.d(TAG, "파이썬 호출3 ")
-        val result: String = pythonModule.callAttr("main", originalImageData, cropImageData, params, xyxyJsonString).toString()
+        val result: String =
+            pythonModule.callAttr("main", originalImageData, cropImageData, params, xyxyJsonString)
+                .toString()
         Log.d(TAG, "파이썬 결과: $result")
         //결과값 Json 객체화
         val resultJson = JSONObject(result)
@@ -113,12 +130,88 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         this.focalLength = focalLength
     }
 
-    private fun File.toMultiPart(): MultipartBody.Part {
-        val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), this)
-        return MultipartBody.Part.createFormData("image", name, requestFile)
+    private fun runObjectDetection(
+        file: File,
+        onSuccessListener: (BoxDetectResult) -> Unit
+    ) {
+        val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return
+        val image = InputImage.fromBitmap(bitmap, 0)
+        val options = ObjectDetectorOptions.Builder()
+            .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
+            .enableMultipleObjects()
+            .enableClassification()
+            .build()
+        val objectDetector = ObjectDetection.getClient(options)
+        objectDetector.process(image)
+            .addOnSuccessListener {
+                val xyxys = mutableListOf<List<Double>>()
+                val croppedFiles = mutableListOf<File>()
+
+                it.forEachIndexed { index, detectedObject ->
+                    val box = it[index].boundingBox
+                    val x = box.left
+                    val y = box.top
+                    val width = box.right - box.left
+                    val height = box.bottom - box.top
+                    val croppedBitmap = bitmap.crop(x, y, width, height)
+                    val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener
+                    croppedFiles.add(croppedFile)
+                    xyxys.add(
+                        listOf(
+                            x.toDouble(),
+                            y.toDouble(),
+                            (x + width).toDouble(),
+                            (y + height).toDouble()
+                        )
+                    )
+
+                }
+                val res=BoxDetectResult(file,croppedFiles[0],xyxys[0])
+                onSuccessListener(res)
+            }
     }
 
-    private fun getCameraParams(): LiveData<Params?> = DBManager.cameraParamDao.getCameraParams()
+    private fun debugPrint(detectedObjects: List<DetectedObject>) {
+        detectedObjects.forEachIndexed { index, detectedObject ->
+            val box = detectedObject.boundingBox
+
+            Log.d(TAG, "Detected object: $index")
+            Log.d(TAG, " trackingId: ${detectedObject.trackingId}")
+            Log.d(TAG, " boundingBox: (${box.left}, ${box.top}) - (${box.right},${box.bottom})")
+            detectedObject.labels.forEach {
+                Log.d(TAG, " categories: ${it.text}")
+                Log.d(TAG, " confidence: ${it.confidence}")
+            }
+        }
+    }
+
+    private fun Bitmap.crop(x: Int, y: Int, width: Int, height: Int): Bitmap? {
+        return try {
+            Bitmap.createBitmap(this, x, y, width, height)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
+    fun Bitmap.toFile(): File {
+        val fileName = SimpleDateFormat(
+            "yyyyMMdd_HHmmss",
+            Locale.getDefault()
+        ).format(System.currentTimeMillis())
+        val file = File(BoxDotSize.ApplicationContext().cacheDir, fileName)
+        file.createNewFile()
+
+        val bos = FileOutputStream(file)
+        compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+        bos.flush()
+        bos.close()
+
+        return file
+    }
+
+    fun getCameraParams(): LiveData<Params?> = DBManager.cameraParamDao.getCameraParams()
 
     data class BoxSize(val width: Float, val height: Float, val tall: Float)
 
