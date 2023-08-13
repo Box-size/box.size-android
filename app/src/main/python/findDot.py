@@ -236,10 +236,10 @@ def adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, a
 
     points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
     new_points = []
-    # x_ratio = ((box[0][2] - box[0][0])/original_ratio[0])
-    # y_ratio = ((box[0][3] - box[0][1])/original_ratio[1])
+    x_ratio = ((box[2] - box[0])/original_ratio[0])
+    y_ratio = ((box[3] - box[1])/original_ratio[1])
     for point in points:
-        new_points.append((box[0][0] + point[0], box[0][1] + point[1]))
+        new_points.append((box[0] + point[0] * x_ratio, box[1] + point[1] * y_ratio - (away_y * y_ratio)))
 
     return new_points[0], new_points[1], new_points[2], new_points[3], new_points[4], new_points[5]
 
@@ -260,6 +260,8 @@ def find(edges, original, box, original_ratio, params, show=False):
 
     points = find_points_from_edges_image(edges)
 
+    print("find_points")
+
     # if(show):
     #     # 찾은 점 시각화
     #     plt.imshow(edges)
@@ -272,10 +274,17 @@ def find(edges, original, box, original_ratio, params, show=False):
 
     top, bottom, left_top, left_bottom, right_top, right_bottom = classify_points(points)
     #좌표 원본이미지에 맞게 보정
-
+    print("find dot")
     #좌표 조정
     away_x, away_y = min(left_top[0], left_bottom[0]), top[1]
-    top, bottom, left_top, left_bottom, right_top, right_bottom = adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, away_y, original_ratio ,box)
+
+    try:
+        top, bottom, left_top, left_bottom, right_top, right_bottom = adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, away_y, original_ratio ,box)
+    except:
+        print("except")
+        return (0, 0, 0)
+
+    print("adjust")
 
     # if(show):
     #     new_points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
@@ -294,10 +303,12 @@ def find(edges, original, box, original_ratio, params, show=False):
     #상자 왼쪽밑 ~ 오른쪽위 거리
     diagonal = calc_diagonal(bottom, top)
 
+    print("calc_ratio")
+
     #이미지 꼭지점 좌표를 토대로 구한 가로, 세로, 높이
     width, height, tall, img_width = calc_pixel_w_h(top, bottom, left_top, left_bottom, right_top, right_bottom, diagonal, bottom_ratio)
     print("이미지 꼭지점 좌표를 토대로 구한 가로, 세로, 높이:", width, height, tall)
-    
+
     #외부 파라미터 추정
     _retval, rvec, tvec = calculate_parameters(fx, fy, cx, cy, dist, top, bottom, left_top, left_bottom, right_top, right_bottom, width, height, tall)
     print("tvec : " , tvec)

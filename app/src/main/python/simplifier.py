@@ -26,6 +26,10 @@ def simplify(input):
     #TODO: resize 문제 해결 필요
     #input = cv2.cvtColor(input, cv2.COLOR_BGR2GRAY) #흑백배경으로 변경
     #input, original_ratio = resize_ratio(input)  #사이즈 변경?
+    input = cv2.cvtColor(input, cv2.COLOR_BGR2GRAY) #흑백배경으로 변경
+    input, original_ratio = resize_ratio(input)  #사이즈 변경?
+
+    input = cv2.cvtColor(input, cv2.COLOR_RGB2BGR)
 
     # TODO: 여기서 opencv 써서 배경 제거
     #배경 제거
@@ -36,6 +40,8 @@ def simplify(input):
     margin = 50  # 주변 공간 크기
     rect = (margin, margin, width - 2 * margin, height - 2 * margin)
 
+    print("사각형 지정")
+
     # 초기 마스크 생성
     mask = np.zeros(input.shape[:2], dtype=np.uint8)
 
@@ -43,6 +49,8 @@ def simplify(input):
     bgdModel = np.zeros((1, 65), np.float64)
     fgdModel = np.zeros((1, 65), np.float64)
     cv2.grabCut(input, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
+
+    print("GrabCut")
 
     # 결과 마스크에서 가능성 있는 전경/배경 픽셀 선택
     mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
@@ -52,7 +60,10 @@ def simplify(input):
 
     result = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
 
-    nuki = cv2.Canny(result, threshold1=100, threshold2=250)               
+    nuki = cv2.Canny(result, threshold1=100, threshold2=250)
+
+    print("nuki")
+
     # 명암비 alpha 0이면 그대로, 양수일수록 명암비가 커진다.
     alpha = 0.5
     input = np.clip((1+alpha) * input - 128 * alpha, 0, 255).astype(np.uint8)
@@ -73,8 +84,6 @@ def simplify(input):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
     # 커널을 사용해 MORPH_CLOSE -> 커널에 맞게 주변 픽셀 다 선택해서 채우기 때문에 선이 두꺼워진다.
     morphology = cv2.morphologyEx(nuki, cv2.MORPH_CLOSE, kernel)
-    cv2.imshow('Result', morphology)
-    cv2.waitKey(0)
-    
-    return morphology, 1
+    print("morphology")
+    return morphology, original_ratio
 
