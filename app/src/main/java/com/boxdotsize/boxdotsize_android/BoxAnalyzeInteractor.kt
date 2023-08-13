@@ -23,12 +23,18 @@ import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.FileOutputStream
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
@@ -59,11 +65,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
             var res = BoxSize(0f, 0f, 0f)
             try {
-                val test = runObjectDetection(file) { cropedFiles, xyxys ->
-                    Log.d("checkchekc", cropedFiles.toString() + "\n" + xyxys.toString())
-//                    debugPrint(it)
-                }
-                res = analyze(file, cameraParams!!)
+                res = analyze(file, cameraParams!!)?:return@launch
             } catch (e: Exception) {
                 Log.e(TAG, e.stackTraceToString())
                 listener.onError()
@@ -91,11 +93,11 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         }
     }
 
-    private fun analyze(file: File, params: String): BoxSize {
+    private suspend fun analyze(file: File, params: String): BoxSize? {
         //TODO 여기서 분석 시작
 
         // TODO: YOLO 함수 작성
-        val detectResult = detectBox(file)
+        val detectResult = runObjectDetection(file)?:return null
 
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(BoxDotSize.ApplicationContext()))
@@ -130,45 +132,49 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         this.focalLength = focalLength
     }
 
-    private fun runObjectDetection(
+    private suspend fun runObjectDetection(
         file: File,
-        onSuccessListener: (BoxDetectResult) -> Unit
-    ) {
-        val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return
-        val image = InputImage.fromBitmap(bitmap, 0)
-        val options = ObjectDetectorOptions.Builder()
-            .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
-            .enableMultipleObjects()
-            .enableClassification()
-            .build()
-        val objectDetector = ObjectDetection.getClient(options)
-        objectDetector.process(image)
-            .addOnSuccessListener {
-                val xyxys = mutableListOf<List<Double>>()
-                val croppedFiles = mutableListOf<File>()
+    ):BoxDetectResult?{
+        return suspendCancellableCoroutine { continuation ->
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@suspendCancellableCoroutine
+            val image = InputImage.fromBitmap(bitmap, 0)
+            val options = ObjectDetectorOptions.Builder()
+                .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
+                .enableMultipleObjects()
+                .enableClassification()
+                .build()
+            val objectDetector = ObjectDetection.getClient(options)
+            objectDetector.process(image)
+                .addOnSuccessListener { detectedObjects ->
+                    val xyxys = mutableListOf<List<Double>>()
+                    val croppedFiles = mutableListOf<File>()
 
-                it.forEachIndexed { index, detectedObject ->
-                    val box = it[index].boundingBox
-                    val x = box.left
-                    val y = box.top
-                    val width = box.right - box.left
-                    val height = box.bottom - box.top
-                    val croppedBitmap = bitmap.crop(x, y, width, height)
-                    val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener
-                    croppedFiles.add(croppedFile)
-                    xyxys.add(
-                        listOf(
-                            x.toDouble(),
-                            y.toDouble(),
-                            (x + width).toDouble(),
-                            (y + height).toDouble()
+                    detectedObjects.forEachIndexed { index, detectedObject ->
+                        val box = detectedObjects[index].boundingBox
+                        val x = box.left
+                        val y = box.top
+                        val width = box.right - box.left
+                        val height = box.bottom - box.top
+                        val croppedBitmap = bitmap.crop(x, y, width, height) // 정의 필요
+                        val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener // 정의 필요
+                        croppedFiles.add(croppedFile)
+                        xyxys.add(
+                            listOf(
+                                x.toDouble(),
+                                y.toDouble(),
+                                (x + width).toDouble(),
+                                (y + height).toDouble()
+                            )
                         )
-                    )
+                    }
 
+                    val res = BoxDetectResult(file, croppedFiles[0], xyxys[0])
+                    continuation.resume(res) // 결과를 반환
                 }
-                val res=BoxDetectResult(file,croppedFiles[0],xyxys[0])
-                onSuccessListener(res)
-            }
+                .addOnFailureListener { exception ->
+                    continuation.resumeWithException(exception) // 실패하면 예외를 반환
+                }
+        }
     }
 
     private fun debugPrint(detectedObjects: List<DetectedObject>) {
@@ -204,7 +210,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         file.createNewFile()
 
         val bos = FileOutputStream(file)
-        compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+        compress(Bitmap.CompressFormat.PNG, 0 , bos)
         bos.flush()
         bos.close()
 
