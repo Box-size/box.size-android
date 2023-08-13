@@ -4,6 +4,7 @@ import numpy as np
 from PIL.ExifTags import TAGS
 import io
 
+
 def chess(gray):
     flags = cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_NORMALIZE_IMAGE + cv2.CALIB_CB_FAST_CHECK
     return cv2.findChessboardCorners(gray, (4,7), flags)

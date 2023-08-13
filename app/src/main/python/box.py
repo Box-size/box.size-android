@@ -6,6 +6,7 @@ import cv2
 import simplifier, findDot, calibration
 from PIL.ExifTags import TAGS
 
+
 def rotate_image_with_exif(image):
     
     try:
