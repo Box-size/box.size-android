@@ -1,20 +1,13 @@
 package com.boxdotsize.boxdotsize_android
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
-import com.boxdotsize.boxdotsize_android.room.Params
 import com.boxdotsize.boxdotsize_android.room.AnalyzeResult
 import com.boxdotsize.boxdotsize_android.room.DBManager
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import java.io.File
+import com.boxdotsize.boxdotsize_android.room.Params
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.google.mlkit.common.model.LocalModel
@@ -22,17 +15,15 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.objects.DetectedObject
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
-import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.coroutines.resume
@@ -99,8 +90,9 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         //TODO 여기서 분석 시작
 
         // TODO: YOLO 함수 작성
+        Log.d("Start", "Start")
         val detectResult = runObjectDetection(file)?:return null
-
+        Log.d("runObject", "runObject")
         if (!Python.isStarted()) {
             Python.start(AndroidPlatform(BoxDotSize.ApplicationContext()))
         }
@@ -139,27 +131,39 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
     ):BoxDetectResult?{
         return suspendCancellableCoroutine { continuation ->
             val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@suspendCancellableCoroutine
+/*            val resizedBitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                640,
+                640,
+                true
+            )*/
+            Log.d("detector", "convert Bitmap")
             val image = InputImage.fromBitmap(bitmap, 0)
-
+            Log.d("detector", "Input Image")
             val localModel = LocalModel.Builder()
                 .setAssetFilePath("model.tflite")
                 .build()
-
+            Log.d("detector", "Load Model")
             // Multiple object detection in static images
             val customObjectDetectorOptions = CustomObjectDetectorOptions.Builder(localModel)
                     .setDetectorMode(CustomObjectDetectorOptions.SINGLE_IMAGE_MODE)
                     .enableMultipleObjects()
-                    .enableClassification()
+                    //.enableClassification()
                     .setClassificationConfidenceThreshold(0.5f)
                     .setMaxPerObjectLabelCount(3)
                     .build()
-
+            Log.d("detector", "Set Option")
             val objectDetector = ObjectDetection.getClient(customObjectDetectorOptions)
+            Log.d("detector", "Set ObjectDetector")
             objectDetector.process(image)
                 .addOnSuccessListener { detectedObjects ->
                     val xyxys = mutableListOf<List<Double>>()
                     val croppedFiles = mutableListOf<File>()
-
+                    Log.d("detector", "Detect Success")
+                    Log.d("detector", detectedObjects.size.toString())
+                    if(detectedObjects.size<=0){
+                        continuation.resume(null)
+                    }
                     detectedObjects.forEachIndexed { index, detectedObject ->
                         val box = detectedObjects[index].boundingBox
                         val x = box.left
@@ -183,7 +187,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
                     continuation.resume(res) // 결과를 반환
                 }
                 .addOnFailureListener { exception ->
-                    continuation.resumeWithException(exception) // 실패하면 예외를 반환
+                    continuation.resumeWithException(exception)// 실패하면 예외를 반환
                 }
         }
     }
