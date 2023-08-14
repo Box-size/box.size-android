@@ -103,7 +103,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 }
 
                 override fun onError() {
-                    //TODO("Not yet implemented")
+                    binding?.tvBoxAnalyzeResult?.text = "이미지 분석 실패"
                 }
             }) { isParamsExist ->
                 if (!isParamsExist) {
@@ -184,7 +184,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 ) {
                     val focalLength = result.get(CaptureResult.LENS_FOCAL_LENGTH) ?: return
                     interactor?.setFocalLength(focalLength)
-//                    Log.d("focal",focalLength.toString())
                     observable.onNext(focalLength)
                     super.onCaptureCompleted(session, request, result)
                 }
