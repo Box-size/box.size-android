@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-# import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import math
 
 
@@ -76,7 +76,7 @@ def calc_pixel_w_h(top, bottom, left_top, left_bottom, right_top, right_bottom, 
     h_ratio = height / width
     t_ratio = tall / width
     print("(calc_pixel_w_h)width, h_ratio, t_ratio:", width, h_ratio, t_ratio)
-    return 100*diagonal, 100*h_ratio*diagonal, 100*t_ratio*diagonal, width
+    return 100, 100*h_ratio, 100*t_ratio, width
 
 def calc_diagonal(bottom, top):
     return math.sqrt((bottom[0] - top[0])**2 + (bottom[1] - top[1])**2) / 100
@@ -103,47 +103,35 @@ def find_points_from_edges_image(edges):
     """
     윤곽선만 검출한 이미지에서 최대 점 6개를 가진 도형들의 꼭짓점들을 검출
     """
-    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    hexagon_contours = []
+    # 흰색 픽셀(선 픽셀)의 좌표를 추출
+    white_pixel_coords = np.argwhere(edges == 255)
 
-    # 육각형 윤곽선 필터링
-    for contour in contours:
-        perimeter = cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
-        hexagon_contours.append(approx)
-    
-    # 근사화된 윤곽선에서 각 꼭지점의 좌표 추출 및 표시
-    points = []
-    for hexagon in hexagon_contours:
-        for point in hexagon:
-            x, y = point[0]
-            
-            points.append((x, y))
-            
-    # y좌표가 가장 큰 점
-    bottom = max(points, key=lambda p: p[1])
+   
+        # y 좌표가 가장 큰 점 (bottom)
+    bottom = white_pixel_coords[white_pixel_coords[:, 0].argmax()]
 
-    # y좌표가 가장 작은 점
-    top = min(points, key=lambda p: p[1])
+    # y 좌표가 가장 작은 점 (top)
+    top = white_pixel_coords[white_pixel_coords[:, 0].argmin()]
 
-    # x좌표가 가장 작으면서 y좌표가 가장 작은 점 10개
-    x_min_points = sorted(points, key=lambda p: (p[0], p[1]))[:10]
+    # x 좌표가 가장 작은 점들 중에서 y 좌표가 가장 작은 점 (left_top)
+    x_sorted_points = white_pixel_coords[np.argsort(white_pixel_coords[:, 1])]
+    left_top = x_sorted_points[:20][x_sorted_points[:20, 0].argmin()]
 
-    # x좌표가 가장 크면서 y좌표가 가장 큰 점 10개
-    x_max_points = sorted(points, key=lambda p: (-p[0], -p[1]))[:10]
+    # x 좌표가 가장 작은 점들 중에서 y 좌표가 가장 큰 점 (left_bottom)
+    left_bottom = x_sorted_points[:20][x_sorted_points[:20, 0].argmax()]
 
-    # x좌표가 가장 작은 점 10개중 y좌표가 가장 작은 점
-    left_top = min(x_min_points, key=lambda p: p[1])
+    # x 좌표가 가장 큰 점들 중에서 y 좌표가 가장 작은 점 (right_bottom)
+    right_bottom = x_sorted_points[-20:][x_sorted_points[-20:, 0].argmin()]
 
-    # x좌표가 가장 큰 점 10개중 y좌표가 가장 큰 점
-    right_bottom = max(x_max_points, key=lambda p: p[1])
+    # x 좌표가 가장 큰 점들 중에서 y 좌표가 가장 큰 점 (right_top)
+    right_top = x_sorted_points[-20:][x_sorted_points[-20:, 0].argmax()]
 
-
-    left_bottom = max(x_min_points, key=lambda p: p[1])
-
-    right_top = min(x_max_points, key=lambda p: p[1])
-
-
+    top = [top[1], top[0]]
+    bottom = [bottom[1], bottom[0]]
+    left_top = [left_top[1], left_top[0]]
+    left_bottom = [left_bottom[1], left_bottom[0]]
+    right_top = [right_top[1], right_top[0]]
+    right_bottom = [right_bottom[1], right_bottom[0]]
     # 결과를 new_points 배열에 넣어줌
     new_points = []
     new_points.append(top)
@@ -227,8 +215,9 @@ def calculate_real_length(width, height, tall, distance, fx, img_width, diagonal
     """
     #카메라와 거리 : 초점거리 = 실제 박스크기 : 이미지상 박스크기
     real_width = round((img_width) * distance / fx, 2)
-    real_height = round((height * (img_width / (100*diagonal))) * distance / fx, 2)
-    real_tall = round((tall * (img_width / (100*diagonal))) * distance / fx, 2)
+    real_height = round((height * (img_width / (100))) * distance / fx, 2)
+    real_tall = round((tall * (img_width / (100))) * distance / fx, 2)
+
 
     return real_width, real_height, real_tall
 
@@ -236,11 +225,12 @@ def adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, a
 
     points = [top, bottom, left_top, left_bottom, right_top, right_bottom]
     new_points = []
-    x_ratio = ((box[2] - box[0])/original_ratio[0])
-    y_ratio = ((box[3] - box[1])/original_ratio[1])
+    #x_ratio = ((box[2] - box[0])/original_ratio[0])
+    #y_ratio = ((box[3] - box[1])/original_ratio[1])
     for point in points:
-        new_points.append((box[0] + point[0] * x_ratio, box[1] + point[1] * y_ratio - (away_y * y_ratio)))
-
+        new_points.append((box[0] + point[0], box[1] + point[1]))
+    # * x_ratio
+    # * y_ratio - (away_y * y_ratio)
     return new_points[0], new_points[1], new_points[2], new_points[3], new_points[4], new_points[5]
 
 
@@ -306,38 +296,38 @@ def find(edges, original, box, original_ratio, params, show=False):
     #외부 파라미터 추정
     _retval, rvec, tvec = calculate_parameters(fx, fy, cx, cy, dist, top, bottom, left_top, left_bottom, right_top, right_bottom, width, height, tall)
   
-    if(show):
-        # 시각화용 코드
-        # 3D 좌표계 상에서 카메라의 위치와 방향 계산
-        rotation_matrix, _ = cv2.Rodrigues(rvec)
-        camera_position = -np.dot(rotation_matrix.T, tvec)
+    # if(show):
+    #     # 시각화용 코드
+    #     # 3D 좌표계 상에서 카메라의 위치와 방향 계산
+    #     rotation_matrix, _ = cv2.Rodrigues(rvec)
+    #     camera_position = -np.dot(rotation_matrix.T, tvec)
 
-        # 3D 그래프 생성
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+    #     # 3D 그래프 생성
+    #     fig = plt.figure()
+    #     ax = fig.add_subplot(111, projection='3d')
 
-        # 카메라의 위치와 방향 그리기
-        ax.quiver(camera_position[0], camera_position[1], camera_position[2], rvec[0], rvec[1], rvec[2])
+    #     # 카메라의 위치와 방향 그리기
+    #     ax.quiver(camera_position[0], camera_position[1], camera_position[2], rvec[0], rvec[1], rvec[2])
 
-        #3D 좌표계에 생성한 박스 좌표
-        object_points = np.array([[0, 0, 0],
-                                [width, 0, 0],
-                                [0, height, 0],
-                                [width, 0, tall],
-                                [0, height, tall],
-                                [width, height, tall]],
-                                dtype=np.float32)
+    #     #3D 좌표계에 생성한 박스 좌표
+    #     object_points = np.array([[0, 0, 0],
+    #                             [width, 0, 0],
+    #                             [0, height, 0],
+    #                             [width, 0, tall],
+    #                             [0, height, tall],
+    #                             [width, height, tall]],
+    #                             dtype=np.float32)
 
-        #물체 위치 그리기
-        ax.scatter3D(object_points[:, 0], object_points[:, 1], object_points[:, 2])
+    #     #물체 위치 그리기
+    #     ax.scatter3D(object_points[:, 0], object_points[:, 1], object_points[:, 2])
 
-        # 그래프 표시
-        plt.show()
+    #     # 그래프 표시
+    #     plt.show()
 
     distance = calculate_distance(rvec, tvec, bottom, fx, fy, cx, cy)
     print("distance:", distance)
 
     w, h, t = calculate_real_length(width, height, tall, distance, fx, img_width, diagonal, bottom_ratio)
     #TODO: 길이 상수값 나중에 실험 후 확인
-    w, h, t = w*0.24, h*0.24, t*0.24
+    
     return (w, h, t)

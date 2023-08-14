@@ -37,7 +37,7 @@ def simplify(input):
     height, width = input.shape[:2]
 
     # 관심 영역의 사각형 지정 (중앙 부근에 충분한 공간을 포함)
-    margin = 30  # 주변 공간 크기
+    margin = 20  # 주변 공간 크기
     rect = (margin, margin, width - 2 * margin, height - 2 * margin)
 
     print("사각형 지정")

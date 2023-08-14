@@ -40,11 +40,13 @@ def resize_image(original : cv2, crop : cv2, xyxy):
     original_ratio = 640 / original.shape[1]
     xyxy_ratio = original.shape[1] / 640
     #crop된 이미지 비율 맞춰서 resize
-    crop_resize = cv2.resize(crop, dsize=(0,0), fx=original_ratio, fy=original_ratio) 
+    crop_x = int(crop.shape[1] * original_ratio)
+    crop_y = int(crop.shape[0] * original_ratio)
+    crop_resize = cv2.resize(crop, dsize=(crop_x, crop_y)) 
     print("crop xy : ", crop.shape[1], crop.shape[0])
     print("crop_resize xy : ", crop_resize.shape[1], crop_resize.shape[0])
     #비율에 맞게 xyxy조정
-    new_xyxy = [float(xyxy[0] / xyxy_ratio),
+    new_xyxy = [float(xyxy[0] / xyxy_ratio), 
                 float(xyxy[1] / xyxy_ratio - 100),
                 float(xyxy[2] / xyxy_ratio),
                 float(xyxy[3] / xyxy_ratio - 100)]
@@ -124,11 +126,12 @@ def main(original_image_data, crop_image_data, params, xyxy):
     print("최종 결과 주기")
     return result
 
-if __name__ == '__main__':
-    image = Image.open("images_cali/bbox.jpg") # 이미지 테스트
-    image_cali = Image.open("images_cali/check3.jpg") #calibration
-    image = rotate_image_with_exif(image)
-    image_cali = rotate_image_with_exif(image_cali)
-    params = calculate_camera_parameters(image_cali)
-    print("calculate_camera_parameters 결과:", params)
-    calculate_box_size(image, params, show=True)
+# if __name__ == '__main__':
+#     image = Image.open("modules/images_cali/tt2.jpg") # 이미지 테스트
+#     image_cali = Image.open("modules/images_cali/ch.jpg") #calibration
+#     image = rotate_image_with_exif(image)
+#     image_cali = rotate_image_with_exif(image_cali)
+#     params = calculate_camera_parameters(image_cali)
+#     crop, xyxy = detector.detect(image)
+#     print("calculate_camera_parameters 결과:", params)
+#     calculate_box_size(image,crop, params, xyxy,show=True)
