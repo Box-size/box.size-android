@@ -133,22 +133,8 @@ class UniBoxSizeMeasureFragment : Fragment() {
         val cacheDir = requireContext().cacheDir
 
         val fileName = "img_${System.currentTimeMillis()}.jpg"
-
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
-            }
-        }
-
-        val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                requireContext().contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-            .build()
+        val file=File(cacheDir,fileName)
+        val outputOptions=ImageCapture.OutputFileOptions.Builder(file).build()
 
         imageCapture.takePicture(
             outputOptions,
@@ -178,7 +164,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
                     val msg = "Photo capture succeeded: ${output.savedUri} $width $height"
                     Log.d(TAG, msg)
                     interactor?.requestBoxAnalyze(file)
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "이미지 분석", Toast.LENGTH_SHORT).show()
                 }
             }
         )
