@@ -39,7 +39,7 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
 
     private val TAG = "BoxAnalyze"
 
-
+    private var currentCropImage:File?=null
 
     init {
         getCameraParams().observeForever {
@@ -87,7 +87,8 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                         width = width,
                         height = height,
                         tall = tall,
-                        url = file.path
+                        url = file.path,
+                        croppedUrl = currentCropImage?.path
                     )
                 )
             }
@@ -175,14 +176,15 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                     if(detectedObjects.size<=0){
                         continuation.resume(null)
                     }
-                    detectedObjects.forEachIndexed { index, detectedObject ->
-                        val box = detectedObjects[index].boundingBox
+                   if(detectedObjects.isNotEmpty()){
+                        val box = detectedObjects[0].boundingBox
                         val x = box.left
                         val y = box.top
                         val width = box.right - box.left
                         val height = box.bottom - box.top
                         val croppedBitmap = bitmap.crop(max(x-20,0), max(y-20,0), min(width+20,bitmap.width), min(height+20,bitmap.height))
                         val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener // 정의 필요
+                       currentCropImage=croppedFile
                         croppedFiles.add(croppedFile)
                         xyxys.add(
                             listOf(
@@ -193,6 +195,24 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                             )
                         )
                     }
+//                    detectedObjects.forEachIndexed { index, detectedObject ->
+//                        val box = detectedObjects[index].boundingBox
+//                        val x = box.left
+//                        val y = box.top
+//                        val width = box.right - box.left
+//                        val height = box.bottom - box.top
+//                        val croppedBitmap = bitmap.crop(max(x-20,0), max(y-20,0), min(width+20,bitmap.width), min(height+20,bitmap.height))
+//                        val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener // 정의 필요
+//                        croppedFiles.add(croppedFile)
+//                        xyxys.add(
+//                            listOf(
+//                                x.toDouble(),
+//                                y.toDouble(),
+//                                (x + width).toDouble(),
+//                                (y + height).toDouble()
+//                            )
+//                        )
+//                    }
 
                     val res = BoxDetectResult(file, croppedFiles[0], xyxys[0])
                     continuation.resume(res) // 결과를 반환

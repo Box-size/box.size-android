@@ -37,6 +37,10 @@ class RecordRecyclerAdapter:RecyclerView.Adapter<RecordRecyclerAdapter.RecordVie
             Glide.with(binding.ivRecordImage)
                 .load(data.url)
                 .into(binding.ivRecordImage)
+
+            Glide.with(binding.ivRecordCroppedImage)
+                .load(data.croppedUrl)
+                .into(binding.ivRecordCroppedImage)
         }
     }
 }

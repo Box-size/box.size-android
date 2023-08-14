@@ -14,5 +14,6 @@ data class AnalyzeResult(
     val width: Float,
     val height: Float,
     val tall: Float,
-    val url: String
+    val url: String,
+    val croppedUrl:String?
 )
