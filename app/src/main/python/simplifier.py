@@ -5,31 +5,31 @@ def simplify(input):
     '''이미지의 배경을 제거하고 외곽선을 검출'''
     
     
-    def resize_ratio(pic):
-        size=(256, 256)
-        #덮어씌울 base_pic 생성
-        base_pic=np.zeros((size[1],size[0]),np.uint8)
-        pic1=pic
-        #원본 사진 비율 보존
-        h,w=pic1.shape[:2]
-        ash=size[1]/h
-        asw=size[0]/w
-        if asw<ash:
-            sizeas=(int(w*asw),int(h*asw))
-        else:
-            sizeas=(int(w*ash),int(h*ash))
-        pic1 = cv2.resize(pic1,dsize=sizeas)
-        base_pic[int(size[1]/2-sizeas[1]/2):int(size[1]/2+sizeas[1]/2),
-        int(size[0]/2-sizeas[0]/2):int(size[0]/2+sizeas[0]/2)]=pic1
-        return base_pic, sizeas
+    # def resize_ratio(pic):
+    #     size=(256, 256)
+    #     #덮어씌울 base_pic 생성
+    #     base_pic=np.zeros((size[1],size[0]),np.uint8)
+    #     pic1=pic
+    #     #원본 사진 비율 보존
+    #     h,w=pic1.shape[:2]
+    #     ash=size[1]/h
+    #     asw=size[0]/w
+    #     if asw<ash:
+    #         sizeas=(int(w*asw),int(h*asw))
+    #     else:
+    #         sizeas=(int(w*ash),int(h*ash))
+    #     pic1 = cv2.resize(pic1,dsize=sizeas)
+    #     base_pic[int(size[1]/2-sizeas[1]/2):int(size[1]/2+sizeas[1]/2),
+    #     int(size[0]/2-sizeas[0]/2):int(size[0]/2+sizeas[0]/2)]=pic1
+    #     return base_pic, sizeas
 
     #TODO: resize 문제 해결 필요
     #input = cv2.cvtColor(input, cv2.COLOR_BGR2GRAY) #흑백배경으로 변경
     #input, original_ratio = resize_ratio(input)  #사이즈 변경?
-    input = cv2.cvtColor(input, cv2.COLOR_BGR2GRAY) #흑백배경으로 변경
-    input, original_ratio = resize_ratio(input)  #사이즈 변경?
+    # input = cv2.cvtColor(input, cv2.COLOR_BGR2GRAY) #흑백배경으로 변경
+    # input, original_ratio = resize_ratio(input)  #사이즈 변경?
 
-    input = cv2.cvtColor(input, cv2.COLOR_RGB2BGR)
+    #input = cv2.cvtColor(input, cv2.COLOR_RGB2BGR)
 
     # TODO: 여기서 opencv 써서 배경 제거
     #배경 제거
@@ -37,7 +37,7 @@ def simplify(input):
     height, width = input.shape[:2]
 
     # 관심 영역의 사각형 지정 (중앙 부근에 충분한 공간을 포함)
-    margin = 50  # 주변 공간 크기
+    margin = 30  # 주변 공간 크기
     rect = (margin, margin, width - 2 * margin, height - 2 * margin)
 
     print("사각형 지정")
@@ -85,5 +85,5 @@ def simplify(input):
     # 커널을 사용해 MORPH_CLOSE -> 커널에 맞게 주변 픽셀 다 선택해서 채우기 때문에 선이 두꺼워진다.
     morphology = cv2.morphologyEx(nuki, cv2.MORPH_CLOSE, kernel)
     print("morphology")
-    return morphology, original_ratio
+    return morphology, 1
 
