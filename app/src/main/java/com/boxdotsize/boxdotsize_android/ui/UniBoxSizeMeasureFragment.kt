@@ -120,7 +120,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
     }
 
     private fun subscribeToSubject() {
-        disposable = observable.throttleFirst(3000, TimeUnit.MILLISECONDS)
+        disposable = observable.throttleFirst(5000, TimeUnit.MILLISECONDS)
             .subscribe {
                 Log.d(TAG, "HELLO!!!")
                 takePhoto()
@@ -145,24 +145,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = output.savedUri
-                    val resolver = requireContext().contentResolver
-                    val imageBitmap = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                        MediaStore.Images.Media.getBitmap(resolver, savedUri)
-                    } else {
-                        val source = ImageDecoder.createSource(resolver, savedUri!!)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-
-                    val file = File(requireContext().cacheDir, fileName)
-                    val fileOutputStream = FileOutputStream(file)
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-                    fileOutputStream.close()
-
-                    val width = imageBitmap.width
-                    val height = imageBitmap.height
-                    val msg = "Photo capture succeeded: ${output.savedUri} $width $height"
-                    Log.d(TAG, msg)
                     interactor?.requestBoxAnalyze(file)
                     Toast.makeText(requireContext(), "이미지 분석", Toast.LENGTH_SHORT).show()
                 }

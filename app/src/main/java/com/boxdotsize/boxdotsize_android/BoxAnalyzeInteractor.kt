@@ -3,7 +3,6 @@ package com.boxdotsize.boxdotsize_android
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import com.boxdotsize.boxdotsize_android.room.AnalyzeResult
 import com.boxdotsize.boxdotsize_android.room.DBManager
@@ -91,6 +90,7 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                         croppedUrl = currentCropImage?.path
                     )
                 )
+                currentCropImage=null
             }
             withContext(Dispatchers.Main) {
                 listener?.onResponse(width, height, tall) //성공여부 ui로 전달
@@ -143,12 +143,6 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
     ):BoxDetectResult?{
         return suspendCancellableCoroutine { continuation ->
             val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@suspendCancellableCoroutine
-/*            val resizedBitmap = Bitmap.createScaledBitmap(
-                bitmap,
-                640,
-                640,
-                true
-            )*/
             Log.d("detector", "convert Bitmap")
             val image = InputImage.fromBitmap(bitmap, 0)
             Log.d("detector", "Input Image")
@@ -156,11 +150,9 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                 .setAssetFilePath("model.tflite")
                 .build()
             Log.d("detector", "Load Model")
-            // Multiple object detection in static images
             val customObjectDetectorOptions = CustomObjectDetectorOptions.Builder(localModel)
                     .setDetectorMode(CustomObjectDetectorOptions.SINGLE_IMAGE_MODE)
                     .enableMultipleObjects()
-                    //.enableClassification()
                     .setClassificationConfidenceThreshold(0.5f)
                     .setMaxPerObjectLabelCount(3)
                     .build()
@@ -195,24 +187,6 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                             )
                         )
                     }
-//                    detectedObjects.forEachIndexed { index, detectedObject ->
-//                        val box = detectedObjects[index].boundingBox
-//                        val x = box.left
-//                        val y = box.top
-//                        val width = box.right - box.left
-//                        val height = box.bottom - box.top
-//                        val croppedBitmap = bitmap.crop(max(x-20,0), max(y-20,0), min(width+20,bitmap.width), min(height+20,bitmap.height))
-//                        val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener // 정의 필요
-//                        croppedFiles.add(croppedFile)
-//                        xyxys.add(
-//                            listOf(
-//                                x.toDouble(),
-//                                y.toDouble(),
-//                                (x + width).toDouble(),
-//                                (y + height).toDouble()
-//                            )
-//                        )
-//                    }
 
                     val res = BoxDetectResult(file, croppedFiles[0], xyxys[0])
                     continuation.resume(res) // 결과를 반환

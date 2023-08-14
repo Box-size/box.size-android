@@ -123,7 +123,11 @@ class TestFragment : Fragment() {
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
 
+        val cacheDir = requireContext().cacheDir
+
         val fileName = "img_${System.currentTimeMillis()}.jpg"
+        val file=File(cacheDir,fileName)
+        val outputOptions=ImageCapture.OutputFileOptions.Builder(file).build()
 
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -132,14 +136,6 @@ class TestFragment : Fragment() {
                 put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
             }
         }
-
-        val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                requireContext().contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-            .build()
 
         imageCapture.takePicture(
             outputOptions,
@@ -150,26 +146,7 @@ class TestFragment : Fragment() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = output.savedUri
-                    val resolver = requireContext().contentResolver
-                    val imageBitmap = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                        MediaStore.Images.Media.getBitmap(resolver, savedUri)
-                    } else {
-                        val source = ImageDecoder.createSource(resolver, savedUri!!)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-
-                    val file = File(requireContext().cacheDir, fileName)
-                    val fileOutputStream = FileOutputStream(file)
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-                    fileOutputStream.close()
-
-                    val width = imageBitmap.width
-                    val height = imageBitmap.height
-
-                    val msg = "Photo capture succeeded: ${output.savedUri} $width $height"
                     interactor?.requestCameraParamsAnalyze(file)
-                    Log.d(TAG, msg)
                 }
             }
         )
@@ -181,20 +158,9 @@ class TestFragment : Fragment() {
 
         cameraProviderFuture.addListener({
             imageCapture = ImageCapture.Builder().build()
-            val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult
-                ) {
-                    val focalLength = result.get(CaptureResult.LENS_FOCAL_LENGTH) ?: return
-                    //interactor?.setFocalLength(focalLength)
-                    super.onCaptureCompleted(session, request, result)
-                }
-            }
-            val builder = Preview.Builder()
 
-            Camera2Interop.Extender(builder).setSessionCaptureCallback(captureCallback)
+            val builder = Preview.Builder()
+            
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
             val preview = builder
                 .build()
