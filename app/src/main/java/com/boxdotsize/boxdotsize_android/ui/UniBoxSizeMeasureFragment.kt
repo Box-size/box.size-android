@@ -29,6 +29,7 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.boxdotsize.boxdotsize_android.BoxAnalyzeInteractor
 import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
 import io.reactivex.rxjava3.disposables.Disposable
@@ -48,15 +49,13 @@ class UniBoxSizeMeasureFragment : Fragment() {
     private val contract = ActivityResultContracts.RequestPermission()
 
     private var imageCapture: ImageCapture? = null
-    private var videoCapture: VideoCapture<Recorder>? = null
-    private var recording: Recording? = null
     private val observable = PublishSubject.create<Float>()
 
     private lateinit var cameraExecutor: ExecutorService
 
     private var interactor: BoxAnalyzeInteractor? = null
 
-    private var disposable:Disposable?=null
+    private var disposable: Disposable? = null
 
     companion object {
         private const val TAG = "CameraXApp"
@@ -106,7 +105,12 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 override fun onError() {
                     //TODO("Not yet implemented")
                 }
-            })
+            }) { isParamsExist ->
+                if (!isParamsExist) {
+                    Toast.makeText(requireContext(),"테스트를 먼저 진행해주세요!",Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                }
+            }
 
         return binding?.root
     }

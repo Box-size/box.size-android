@@ -25,21 +25,25 @@ import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
+import java.util.EventListener
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 import kotlin.math.min
 
-class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
+class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener,private val paramsExistListener: OnParamsCheckListener) {
+
 
     private var cameraParams: String? = null
 
     private val TAG = "BoxAnalyze"
 
+
+
     init {
         getCameraParams().observeForever {
-            Toast.makeText(BoxDotSize.ApplicationContext(), "파라미터 가져옴", Toast.LENGTH_SHORT).show()
+            if(it==null)paramsExistListener.onParamsChecked(false)
             cameraParams = it?.params
         }
     }
@@ -50,6 +54,9 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
         fun onResponse(width: Float, height: Float, tall: Float)
 
         fun onError()
+    }
+    fun interface OnParamsCheckListener{
+        fun onParamsChecked(isExist:Boolean)
     }
 
     fun requestBoxAnalyze(

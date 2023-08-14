@@ -2,5 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="cj_navy">#3A465E</color>
+    <color name="cj_navy">#FF3A465E</color>
+    <color name="cj_blue">#FF007DC3</color>
+    <color name="cj_red">#FFE31B23</color>
+    <color name="cj_yellow">#FFF8971D</color>
 </resources>

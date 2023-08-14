@@ -28,15 +28,9 @@ class HomeFragment : Fragment() {
         binding.btGoGallery.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_imageFragment)
         }
-
-        binding.btGoVideo.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_previewFragment)
-        }
-
         binding.btnTest.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_testFragment)
         }
-
         binding.btnGoRecord.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_recordFragment)
         }
