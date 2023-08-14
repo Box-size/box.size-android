@@ -28,6 +28,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.math.max
+import kotlin.math.min
 
 class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
 
@@ -170,7 +172,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener) {
                         val y = box.top
                         val width = box.right - box.left
                         val height = box.bottom - box.top
-                        val croppedBitmap = bitmap.crop(x, y, width, height) // 정의 필요
+                        val croppedBitmap = bitmap.crop(max(x-20,0), max(y-20,0), min(width+20,bitmap.width), min(height+20,bitmap.height))
                         val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener // 정의 필요
                         croppedFiles.add(croppedFile)
                         xyxys.add(
