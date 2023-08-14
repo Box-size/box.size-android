@@ -31,6 +31,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.boxdotsize.boxdotsize_android.BoxAnalyzeInteractor
 import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.disposables.DisposableContainer
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
@@ -53,6 +55,8 @@ class UniBoxSizeMeasureFragment : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
 
     private var interactor: BoxAnalyzeInteractor? = null
+
+    private var disposable:Disposable?=null
 
     companion object {
         private const val TAG = "CameraXApp"
@@ -112,7 +116,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
     }
 
     private fun subscribeToSubject() {
-        val disposable = observable.throttleFirst(3000, TimeUnit.MILLISECONDS)
+        disposable = observable.throttleFirst(3000, TimeUnit.MILLISECONDS)
             .subscribe {
                 Log.d(TAG, "HELLO!!!")
                 takePhoto()
@@ -176,9 +180,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
         )
     }
 
-
-    private fun captureVideo() {}
-
     @ExperimentalCamera2Interop
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
@@ -212,6 +213,11 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
             cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
         }, ContextCompat.getMainExecutor(requireContext()))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        disposable?.dispose()
     }
 
     override fun onDestroyView() {
