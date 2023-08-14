@@ -32,7 +32,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 import kotlin.math.min
 
-class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener,private val paramsExistListener: OnParamsCheckListener) {
+class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,private var paramsExistListener: OnParamsCheckListener?) {
 
 
     private var cameraParams: String? = null
@@ -43,7 +43,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener,pr
 
     init {
         getCameraParams().observeForever {
-            if(it==null)paramsExistListener.onParamsChecked(false)
+            if(it==null)paramsExistListener?.onParamsChecked(false)
             cameraParams = it?.params
         }
     }
@@ -70,7 +70,9 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener,pr
                 res = analyze(file, cameraParams!!)?:return@launch
             } catch (e: Exception) {
                 Log.e(TAG, e.stackTraceToString())
-                listener.onError()
+                withContext(Dispatchers.Main){
+                    listener?.onError()
+                }
                 return@launch
             }
 
@@ -90,7 +92,7 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener,pr
                 )
             }
             withContext(Dispatchers.Main) {
-                listener.onResponse(width, height, tall)//성공여부 ui로 전달
+                listener?.onResponse(width, height, tall) //성공여부 ui로 전달
             }
         }
     }
@@ -242,6 +244,11 @@ class BoxAnalyzeInteractor(private val listener: OnBoxAnalyzeResponseListener,pr
     }
 
     fun getCameraParams(): LiveData<Params?> = DBManager.cameraParamDao.getCameraParams()
+
+    fun removeListeners(){
+        listener=null
+        paramsExistListener=null
+    }
 
     data class BoxSize(val width: Float, val height: Float, val tall: Float)
 

@@ -206,6 +206,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
+        interactor?.removeListeners()
         disposable?.dispose()
     }
 
