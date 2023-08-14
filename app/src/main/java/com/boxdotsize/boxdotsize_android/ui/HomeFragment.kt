@@ -25,8 +25,12 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btGoGallery.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_imageFragment)
+        binding.btUniBoxAnalyze.setOnClickListener {
+            findNavController().navigate(R.id.uniBoxSizeMeasureFragment)
+        }
+
+        binding.btMutliBoxAnalyze.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_multiBoxSizeMeasureFragment)
         }
         binding.btnTest.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_testFragment)

@@ -30,7 +30,7 @@ class RecordRecyclerAdapter:RecyclerView.Adapter<RecordRecyclerAdapter.RecordVie
 
     inner class RecordViewHolder(private val binding:ItemAnalyzeRecordBinding):RecyclerView.ViewHolder(binding.root){
         fun bind(data:AnalyzeResult){
-            binding.rvRecordResult.text="가로 : ${data.width} \n세로 : ${data.height}\n높이 : ${data.tall}"
+            binding.rvRecordResult.text="가로 : ${data.width} \n세로 : ${data.height}\n높이 : ${data.tall}\n\n과제 : ${data.type}"
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")
             binding.tvRecordTime.text = data.time.format(formatter)
 

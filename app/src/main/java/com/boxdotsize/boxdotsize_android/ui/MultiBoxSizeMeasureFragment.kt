@@ -1,16 +1,12 @@
 package com.boxdotsize.boxdotsize_android.ui
 
 import android.Manifest
-import android.content.ContentValues
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,24 +20,20 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.Recorder
-import androidx.camera.video.Recording
-import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.boxdotsize.boxdotsize_android.BoxAnalyzeInteractor
 import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.disposables.DisposableContainer
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.io.File
-import java.io.FileOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
-class UniBoxSizeMeasureFragment : Fragment() {
+class MultiBoxSizeMeasureFragment : Fragment() {
 
     private var _binding: FragmentPreviewBinding? = null
     private val binding get() = _binding
@@ -81,7 +73,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
         val activityResultLauncher = registerForActivityResult(contract) { isGanted ->
             if (isGanted) {
                 startCamera()
-                //subscribeToSubject()
             }
         }
 
@@ -110,24 +101,26 @@ class UniBoxSizeMeasureFragment : Fragment() {
                     Toast.makeText(requireContext(),"테스트를 먼저 진행해주세요!",Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
-            },"Task1")
+            },"Task2")
 
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.etAnalyzeInterval?.visibility=View.GONE
-        binding?.tbPreviewNaviagition?.title="#TASK 1"
+        binding?.etAnalyzeInterval?.visibility=View.VISIBLE
+        binding?.tbPreviewNaviagition?.title="#TASK 2"
         binding?.pvVideo?.setOnClickListener {
-            takePhoto()
+            subscribeToSubject()
         }
     }
 
     private fun subscribeToSubject() {
-        disposable = observable.throttleFirst(5000, TimeUnit.MILLISECONDS)
+        val interval=binding?.etAnalyzeInterval?.text?.toString()?.toLong()?:5000
+
+        Toast.makeText(requireContext(),"${interval}ms 간격으로 촬영을 시작합니다.",Toast.LENGTH_SHORT).show()
+        disposable = observable.throttleFirst(max(1000,interval), TimeUnit.MILLISECONDS)
             .subscribe {
-                Log.d(TAG, "HELLO!!!")
                 takePhoto()
             }
     }

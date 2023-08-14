@@ -31,7 +31,11 @@ import kotlin.coroutines.resumeWithException
 import kotlin.math.max
 import kotlin.math.min
 
-class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,private var paramsExistListener: OnParamsCheckListener?) {
+class BoxAnalyzeInteractor(
+    private var listener: OnBoxAnalyzeResponseListener?,
+    private var paramsExistListener: OnParamsCheckListener?,
+    private val type:String=""
+) {
 
 
     private var cameraParams: String? = null
@@ -87,7 +91,8 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                         height = height,
                         tall = tall,
                         url = file.path,
-                        croppedUrl = currentCropImage?.path
+                        croppedUrl = currentCropImage?.path,
+                        type=this@BoxAnalyzeInteractor.type
                     )
                 )
                 currentCropImage=null
@@ -186,10 +191,9 @@ class BoxAnalyzeInteractor(private var listener: OnBoxAnalyzeResponseListener?,p
                                 (y + height).toDouble()
                             )
                         )
+                       val res = BoxDetectResult(file, croppedFiles[0], xyxys[0])
+                       continuation.resume(res) // 결과를 반환
                     }
-
-                    val res = BoxDetectResult(file, croppedFiles[0], xyxys[0])
-                    continuation.resume(res) // 결과를 반환
                 }
                 .addOnFailureListener { exception ->
                     continuation.resumeWithException(exception)// 실패하면 예외를 반환

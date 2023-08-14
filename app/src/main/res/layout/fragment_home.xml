@@ -32,18 +32,36 @@
         app:layout_constraintVertical_bias="0.241" />
 
     <Button
-        android:id="@+id/bt_go_gallery"
+        android:id="@+id/bt_uni_box_analyze"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
         android:layout_marginBottom="20dp"
         android:backgroundTint="@color/cj_blue"
         android:minHeight="60dp"
-        android:text="@string/analyze_box_size"
+        android:text="@string/analyze_with_photo"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btn_go_record"
-        app:layout_constraintEnd_toEndOf="@+id/btn_test"
+        app:layout_constraintEnd_toStartOf="@+id/bt_mutli_box_analyze"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/btn_test" />
+
+    <Button
+        android:id="@+id/bt_mutli_box_analyze"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:backgroundTint="@color/cj_blue"
+        android:minHeight="60dp"
+        android:text="@string/analyze_with_video"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/bt_uni_box_analyze"
+        app:layout_constraintEnd_toEndOf="@+id/btn_test"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/bt_uni_box_analyze"
+        app:layout_constraintTop_toTopOf="@+id/bt_uni_box_analyze" />
 
     <Button
         android:id="@+id/btn_test"
@@ -56,7 +74,7 @@
         android:text="@string/test"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/bt_go_gallery"
+        app:layout_constraintBottom_toTopOf="@+id/bt_uni_box_analyze"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
