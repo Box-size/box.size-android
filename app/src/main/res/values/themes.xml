@@ -1,9 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.BoxDotSize" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.BoxDotSize" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.BoxDotSize" parent="Base.Theme.BoxDotSize" />
+    <style name="Theme.BoxDotSize" parent="Theme.Material3.Light.NoActionBar" >
+        <item name="android:statusBarColor">@color/cj_navy</item>
+    </style>
 </resources>

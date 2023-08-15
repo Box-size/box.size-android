@@ -1,6 +1,7 @@
 package com.boxdotsize.boxdotsize_android.ui
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -29,8 +30,12 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.boxdotsize.boxdotsize_android.BoxAnalyzeInteractor
+import com.boxdotsize.boxdotsize_android.R
 import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.disposables.DisposableContainer
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.io.File
 import java.io.FileOutputStream
@@ -46,13 +51,15 @@ class UniBoxSizeMeasureFragment : Fragment() {
     private val contract = ActivityResultContracts.RequestPermission()
 
     private var imageCapture: ImageCapture? = null
-    private var videoCapture: VideoCapture<Recorder>? = null
-    private var recording: Recording? = null
     private val observable = PublishSubject.create<Float>()
 
     private lateinit var cameraExecutor: ExecutorService
 
     private var interactor: BoxAnalyzeInteractor? = null
+
+    private var disposable: Disposable? = null
+
+    private var progressDialog: AlertDialog?=null
 
     companion object {
         private const val TAG = "CameraXApp"
@@ -75,10 +82,16 @@ class UniBoxSizeMeasureFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        val dialogView=LayoutInflater.from(requireContext()).inflate(R.layout.dialog_progress,null)
+        progressDialog=AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
         val activityResultLauncher = registerForActivityResult(contract) { isGanted ->
             if (isGanted) {
                 startCamera()
-                subscribeToSubject()
+                //subscribeToSubject()
             }
         }
 
@@ -97,33 +110,31 @@ class UniBoxSizeMeasureFragment : Fragment() {
                         append(tall)
                     }
                     binding?.tvBoxAnalyzeResult?.text = builder
+                    progressDialog?.dismiss()
                 }
 
                 override fun onError() {
-                    //TODO("Not yet implemented")
+                    binding?.tvBoxAnalyzeResult?.text = "이미지 분석 실패"
+                    progressDialog?.dismiss()
                 }
-            })
+            }, { isParamsExist ->
+                if (!isParamsExist) {
+                    Toast.makeText(requireContext(),"테스트를 먼저 진행해주세요!",Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                }
+            },"Task1")
 
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        binding?.etAnalyzeInterval?.visibility=View.GONE
+        binding?.tbPreviewNaviagition?.title="#TASK 1"
         binding?.pvVideo?.setOnClickListener {
-            Toast.makeText(requireContext(), "HELLO", Toast.LENGTH_SHORT).show()
             takePhoto()
+            progressDialog?.show()
         }
-
-
-    }
-
-    private fun subscribeToSubject() {
-        val disposable = observable.throttleFirst(3000, TimeUnit.MILLISECONDS)
-            .subscribe {
-                Log.d(TAG, "HELLO!!!")
-                takePhoto()
-            }
     }
 
     private fun takePhoto() {
@@ -132,22 +143,8 @@ class UniBoxSizeMeasureFragment : Fragment() {
         val cacheDir = requireContext().cacheDir
 
         val fileName = "img_${System.currentTimeMillis()}.jpg"
-
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
-            }
-        }
-
-        val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(
-                requireContext().contentResolver,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-            .build()
+        val file=File(cacheDir,fileName)
+        val outputOptions=ImageCapture.OutputFileOptions.Builder(file).build()
 
         imageCapture.takePicture(
             outputOptions,
@@ -158,34 +155,11 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = output.savedUri
-                    val resolver = requireContext().contentResolver
-                    val imageBitmap = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                        MediaStore.Images.Media.getBitmap(resolver, savedUri)
-                    } else {
-                        val source = ImageDecoder.createSource(resolver, savedUri!!)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-
-                    val file = File(requireContext().cacheDir, fileName)
-                    val fileOutputStream = FileOutputStream(file)
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
-                    fileOutputStream.close()
-
-                    val width = imageBitmap.width
-                    val height = imageBitmap.height
-
-                    val msg = "Photo capture succeeded: ${output.savedUri} $width $height"
                     interactor?.requestBoxAnalyze(file)
-                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
                 }
             }
         )
     }
-
-
-    private fun captureVideo() {}
 
     @ExperimentalCamera2Interop
     private fun startCamera() {
@@ -201,7 +175,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
                 ) {
                     val focalLength = result.get(CaptureResult.LENS_FOCAL_LENGTH) ?: return
                     interactor?.setFocalLength(focalLength)
-                    //Log.d("focal",focalLength.toString())
                     observable.onNext(focalLength)
                     super.onCaptureCompleted(session, request, result)
                 }
@@ -220,6 +193,13 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
             cameraProvider.bindToLifecycle(this, cameraSelector, imageCapture, preview)
         }, ContextCompat.getMainExecutor(requireContext()))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        interactor?.removeListeners()
+        disposable?.dispose()
+        progressDialog=null
     }
 
     override fun onDestroyView() {
