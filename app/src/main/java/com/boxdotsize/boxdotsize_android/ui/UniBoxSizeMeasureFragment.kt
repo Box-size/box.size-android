@@ -1,6 +1,7 @@
 package com.boxdotsize.boxdotsize_android.ui
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -31,6 +32,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.boxdotsize.boxdotsize_android.BoxAnalyzeInteractor
+import com.boxdotsize.boxdotsize_android.R
 import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.disposables.DisposableContainer
@@ -57,6 +59,8 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
     private var disposable: Disposable? = null
 
+    private var progressDialog: AlertDialog?=null
+
     companion object {
         private const val TAG = "CameraXApp"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
@@ -77,6 +81,12 @@ class UniBoxSizeMeasureFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        val dialogView=LayoutInflater.from(requireContext()).inflate(R.layout.dialog_progress,null)
+        progressDialog=AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
 
         val activityResultLauncher = registerForActivityResult(contract) { isGanted ->
             if (isGanted) {
@@ -100,10 +110,12 @@ class UniBoxSizeMeasureFragment : Fragment() {
                         append(tall)
                     }
                     binding?.tvBoxAnalyzeResult?.text = builder
+                    progressDialog?.dismiss()
                 }
 
                 override fun onError() {
                     binding?.tvBoxAnalyzeResult?.text = "이미지 분석 실패"
+                    progressDialog?.dismiss()
                 }
             }, { isParamsExist ->
                 if (!isParamsExist) {
@@ -121,15 +133,8 @@ class UniBoxSizeMeasureFragment : Fragment() {
         binding?.tbPreviewNaviagition?.title="#TASK 1"
         binding?.pvVideo?.setOnClickListener {
             takePhoto()
+            progressDialog?.show()
         }
-    }
-
-    private fun subscribeToSubject() {
-        disposable = observable.throttleFirst(5000, TimeUnit.MILLISECONDS)
-            .subscribe {
-                Log.d(TAG, "HELLO!!!")
-                takePhoto()
-            }
     }
 
     private fun takePhoto() {
@@ -151,7 +156,6 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     interactor?.requestBoxAnalyze(file)
-                    Toast.makeText(requireContext(), "이미지 분석", Toast.LENGTH_SHORT).show()
                 }
             }
         )
@@ -199,6 +203,7 @@ class UniBoxSizeMeasureFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        progressDialog=null
         cameraExecutor.shutdown()
         _binding = null
     }
