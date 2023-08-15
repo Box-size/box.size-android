@@ -197,7 +197,7 @@ def calculate_real_length(width, height, tall, distance, fx, img_width):
         real_height = real_width
         real_width = temp
 
-    if real_width >= 700 or real_height >= 700 or real_tall >= 700 or real_width <= 50 or real_height <= 50 or real_tall<= 50:
+    if real_width <= 50 or real_height <= 50 or real_tall<= 50:
         real_width = 300
         real_height = 300
         real_tall = 300
