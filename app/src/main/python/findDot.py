@@ -245,7 +245,8 @@ def find(edges, original, box, original_ratio, params, show=False):
     fx, fy, cx, cy = params[2:]
     dist = params[1]
     rvec = params[0]
-
+    print("original shape", original.shape[1], original.shape[0])
+    print("edges shape", edges.shape[1], edges.shape[0])
     points = find_points_from_edges_image(edges)
 
 
