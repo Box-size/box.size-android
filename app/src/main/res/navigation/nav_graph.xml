@@ -6,14 +6,35 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.boxdotsize.boxdotsize_android.HomeFragment"
-        android:label="HomeFragment" >
+        android:name="com.boxdotsize.boxdotsize_android.ui.HomeFragment"
+        android:label="HomeFragment">
         <action
-            android:id="@+id/action_homeFragment_to_previewFragment"
-            app:destination="@id/previewFragment" />
+            android:id="@+id/action_homeFragment_to_testFragment"
+            app:destination="@id/testFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_multiBoxSizeMeasureFragment"
+            app:destination="@id/multiBoxSizeMeasureFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_uniBoxSizeMeasureFragment"
+            app:destination="@id/uniBoxSizeMeasureFragment" />
     </fragment>
     <fragment
-        android:id="@+id/previewFragment"
-        android:name="com.boxdotsize.boxdotsize_android.PreviewFragment"
-        android:label="PreviewFragment" />
+        android:id="@+id/testFragment"
+        android:name="com.boxdotsize.boxdotsize_android.ui.TestFragment"
+        android:label="TestFragment" />
+    <fragment
+        android:id="@+id/recordFragment"
+        android:name="com.boxdotsize.boxdotsize_android.ui.RecordFragment"
+        android:label="RecordFragment" />
+    <fragment
+        android:id="@+id/multiBoxSizeMeasureFragment"
+        android:name="com.boxdotsize.boxdotsize_android.ui.MultiBoxSizeMeasureFragment"
+        android:label="MultiBoxSizeMeasureFragment" />
+    <fragment
+        android:id="@+id/uniBoxSizeMeasureFragment"
+        android:name="com.boxdotsize.boxdotsize_android.ui.UniBoxSizeMeasureFragment"
+        android:label="UniBoxSizeMeasureFragment" />
 </navigation>

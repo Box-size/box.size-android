@@ -1,11 +1,19 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    //id 'com.google.devtools.ksp'
+    id 'kotlin-kapt'
+    id 'com.chaquo.python'
 }
 
 android {
     namespace 'com.boxdotsize.boxdotsize_android'
     compileSdk 33
+
+    aaptOptions {
+        noCompress "tflite"
+        // or noCompress "lite"
+    }
 
     defaultConfig {
         applicationId "com.boxdotsize.boxdotsize_android"
@@ -13,10 +21,27 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+        python {
+            pyc {
+                src false
+            }
+            version "3.8"
+            pip {
+                install "numpy"
+                install "opencv-python"
+                install "pillow"
+            }
+        }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    sourceSets {
+        main {
+            python.srcDir "src/main/python"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -30,13 +55,15 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
-    viewBinding{
-        enabled=true
+    viewBinding {
+        enabled = true
     }
 }
 
 dependencies {
 
+    implementation 'com.google.mlkit:object-detection:17.0.0'
+    implementation 'com.google.mlkit:object-detection-custom:17.0.0'
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -59,4 +86,27 @@ dependencies {
 
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation "androidx.camera:camera-extensions:${camerax_version}"
+
+    //retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
+
+    //rxjava
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
+
+    //room
+    def room_version = "2.5.2"
+//
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+
+    //onnxruntime
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.12.1'
 }

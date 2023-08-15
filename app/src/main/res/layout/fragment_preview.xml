@@ -19,6 +19,7 @@
 
 
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,11 +39,46 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="#80ECD3D3"
             android:contentDescription="@string/video_guide"
-            app:srcCompat="@drawable/ic_launcher_foreground" />
+            app:srcCompat="@drawable/box_guide" />
+
+        <TextView
+            android:id="@+id/tv_box_analyze_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#C4FFFFFF"
+            android:minHeight="50dp"
+            android:padding="8dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_box_click_guide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:text="화면을 터치해 측정을 시작하세요!"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/tb_preview_naviagition"
+        app:layout_constraintEnd_toEndOf="@+id/tb_preview_naviagition"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/et_analyze_interval"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="#FFFFFF"
+        android:ems="10"
+        android:hint="측정 간격(ms)"
+        android:inputType="text"
+        android:padding="6dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tb_preview_naviagition" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
