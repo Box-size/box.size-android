@@ -239,7 +239,7 @@ def find(edges, original, box, original_ratio, params, show=False):
     except Exception as e:
         print(e)
         return (300, 300, 300)
-
+    print(top, bottom, left_top, left_bottom, right_top, right_bottom)
     #이미지 꼭지점 좌표를 토대로 구한 가로, 세로, 높이
     width, height, tall, img_width = calc_pixel_w_h(top, bottom, left_top, left_bottom, right_top, right_bottom)
     print("이미지 꼭지점 좌표를 토대로 구한 가로, 세로, 높이:", width, height, tall)

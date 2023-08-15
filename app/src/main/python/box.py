@@ -31,8 +31,7 @@ def rotate_image_with_exif(image):
 def resize_image(original : cv2, crop : cv2, xyxy):
     #3024*4032가정하고 640*853으로 비율 맞춰서 자르기
     xyxy_ratio = original.shape[1] / 640
-    original_resize = cv2.resize(original, (int(original.shape[1]/xyxy_ratio), int(original.shape[1]/xyxy_ratio)))
-    print("resize : ",original_resize)
+    original_resize = cv2.resize(original, (640, 853))
     #자른 후 위 아래 100씩 자르기
     original_resize = original_resize[103:743, 0:640]
     print("original xy : ", original.shape[1], original.shape[0])
@@ -62,6 +61,9 @@ def calculate_box_size(original : Image, crop : Image, params, xyxy, show=False)
 
     crop = np.array(crop)   # image를 cv2에서 사용 가능하게 변환
     crop = cv2.cvtColor(crop, cv2.COLOR_RGB2BGR)
+
+    #90도회전
+    crop = cv2.rotate(crop, cv2.ROTATE_90_CLOCKWISE)
 
     original, crop, xyxy = resize_image(original, crop, xyxy)
     # box, xyxy = detector.detect(image) #박스 감지하고 crop 리턴
