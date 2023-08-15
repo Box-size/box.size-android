@@ -179,7 +179,7 @@ class BoxAnalyzeInteractor(
                         val y = box.top
                         val width = box.right - box.left
                         val height = box.bottom - box.top
-                        val croppedBitmap = bitmap.crop(max(x-20,0), max(y-20,0), min(width+20,bitmap.width), min(height+20,bitmap.height))
+                        val croppedBitmap = bitmap.crop(max(x-40,0), max(y-40,0), min(width+40,bitmap.width), min(height+40,bitmap.height))
                         val croppedFile = croppedBitmap?.toFile() ?: return@addOnSuccessListener // 정의 필요
                        currentCropImage=croppedFile
                         croppedFiles.add(croppedFile)
