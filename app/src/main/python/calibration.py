@@ -79,7 +79,7 @@ def findParams(imageData):
     try:
         rvec, dist, fx, fy, cx, cy = findRT(image_cv2)
     except ValueError:
-        rvec, dist, fx, fy, cx, cy = [0,0,0], [0,0,0,0,0], 0, 0, 0, 0
+        rvec, dist, fx, fy, cx, cy = np.array([0,0,0]), np.array([0,0,0,0,0]), 0, 0, 0, 0
     params = {
         "rvec": rvec.tolist(),
         "dist": dist.tolist(),

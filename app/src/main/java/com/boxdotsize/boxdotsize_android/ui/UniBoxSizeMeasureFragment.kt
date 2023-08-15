@@ -199,11 +199,11 @@ class UniBoxSizeMeasureFragment : Fragment() {
         super.onStop()
         interactor?.removeListeners()
         disposable?.dispose()
+        progressDialog=null
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        progressDialog=null
         cameraExecutor.shutdown()
         _binding = null
     }

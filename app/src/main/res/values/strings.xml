@@ -8,7 +8,7 @@
     <string name="test_start">테스트 시작</string>
     <string name="testing">테스트 중..</string>
     <string name="analyze_box_size">박스 크기 측정</string>
-    <string name="guide">사용 가이드\n\n 1. 분석에 필요한 파라미터를 위해 8x5 체커보드로 테스트를 진행해주세요. \n\n 2. \"박스 크기 측정\" 버튼을 눌러 박스 크기를 측정할 수 있어요.</string>
+    <string name="guide">사용 가이드\n\n 1. 분석에 필요한 파라미터를 위해 8x5 체커보드로 테스트를 진행해주세요. \n\n 2. \"측정\" 버튼을 눌러 박스 크기를 측정할 수 있어요.</string>
     <string name="analyze_record">측정 기록</string>
     <string name="analyze_with_video">영상으로 측정</string>
     <string name="analyze_with_photo">사진으로 측정</string>

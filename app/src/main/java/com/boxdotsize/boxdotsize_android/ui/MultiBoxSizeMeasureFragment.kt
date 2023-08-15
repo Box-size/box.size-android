@@ -28,6 +28,7 @@ import com.boxdotsize.boxdotsize_android.databinding.FragmentPreviewBinding
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.io.File
+import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -116,7 +117,9 @@ class MultiBoxSizeMeasureFragment : Fragment() {
     }
 
     private fun subscribeToSubject() {
-        val interval=binding?.etAnalyzeInterval?.text?.toString()?.toLong()?:5000
+        val editText=binding?.etAnalyzeInterval?.text?:""
+        val interval= if(editText.isEmpty())5000 else editText.toString().toLong()
+
 
         Toast.makeText(requireContext(),"${interval}ms 간격으로 촬영을 시작합니다.",Toast.LENGTH_SHORT).show()
         disposable = observable.throttleFirst(max(1000,interval), TimeUnit.MILLISECONDS)
@@ -144,7 +147,12 @@ class MultiBoxSizeMeasureFragment : Fragment() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     interactor?.requestBoxAnalyze(file)
-                    Toast.makeText(requireContext(), "이미지 분석", Toast.LENGTH_SHORT).show()
+                    try{
+                        Toast.makeText(requireContext(), "이미지 분석", Toast.LENGTH_SHORT).show()
+                    }catch (e:Exception){
+                        Log.e(TAG,"not attached to a context.")
+                    }
+
                 }
             }
         )
