@@ -60,6 +60,7 @@ def simplify(input):
 
     result = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
 
+    # 윤곽선만 표시된 이미지
     nuki = cv2.Canny(result, threshold1=100, threshold2=250)
 
     print("nuki")
@@ -67,18 +68,6 @@ def simplify(input):
     # 명암비 alpha 0이면 그대로, 양수일수록 명암비가 커진다.
     alpha = 0.5
     input = np.clip((1+alpha) * input - 128 * alpha, 0, 255).astype(np.uint8)
-    # 윤곽선만 표시된 이미지
-    
-    # 배경 제거, 이때 배경은 검정
-    # output = remove(input,
-    #     bgcolor=[0,0,0,255])
-    
-    #output = input
-    
-
-    # Canny를 통해 외곽선만 검출(threshold는 통상적인 값, 추후 실험을 통해 변경 필요)
-    # 이미지, Threshold1: 작을 수록 선이 조금더 길게 나옴, Threshold2: 작을 수록 선이 더 많이 검출됨
-    # nuki = cv2.Canny(output, 100, 250)
 
     # morphology를 위한 kernel 제작 nxn의 kernel로 사각형(MORPH_RECT), 즉 커널이 전부 1로 채워짐
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
