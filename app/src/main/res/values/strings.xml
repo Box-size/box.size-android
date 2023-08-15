@@ -12,4 +12,5 @@
     <string name="analyze_record">측정 기록</string>
     <string name="analyze_with_video">영상으로 측정</string>
     <string name="analyze_with_photo">사진으로 측정</string>
+    <string name="analyzing">분석중...</string>
 </resources>
