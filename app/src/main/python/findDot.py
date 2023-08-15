@@ -186,6 +186,12 @@ def calculate_real_length(width, height, tall, distance, fx, img_width):
     real_height = round((height * (img_width / (100))) * distance / fx, 2)
     real_tall = round((tall * (img_width / (100))) * distance / fx, 2)
 
+    constant = fx * 2.4
+    correction = constant / distance
+    real_width *= correction
+    real_height *= correction
+    real_tall *= correction
+
     if(real_height > real_width):
         temp = real_height
         real_height = real_width

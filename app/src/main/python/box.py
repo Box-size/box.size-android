@@ -30,7 +30,9 @@ def rotate_image_with_exif(image):
 #받은 이미지를 640*640비율에 맞게 자르는 함수
 def resize_image(original : cv2, crop : cv2, xyxy):
     #3024*4032가정하고 640*853으로 비율 맞춰서 자르기
-    original_resize = cv2.resize(original, (640, 853))
+    xyxy_ratio = original.shape[1] / 640
+    original_resize = cv2.resize(original, (int(original.shape[1]/xyxy_ratio), int(original.shape[1]/xyxy_ratio)))
+    print("resize : ",original_resize)
     #자른 후 위 아래 100씩 자르기
     original_resize = original_resize[103:743, 0:640]
     print("original xy : ", original.shape[1], original.shape[0])
