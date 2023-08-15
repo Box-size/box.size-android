@@ -84,25 +84,15 @@ def find_points_from_edges_image(edges):
     """
     # 흰색 픽셀(선 픽셀)의 좌표를 추출
     white_pixel_coords = np.argwhere(edges == 255)
-
-    # y 좌표가 가장 큰 점 (bottom)
-    bottom = white_pixel_coords[white_pixel_coords[:, 0].argmax()]
-
-    # y 좌표가 가장 작은 점 (top)
-    top = white_pixel_coords[white_pixel_coords[:, 0].argmin()]
-
-    # x 좌표가 가장 작은 점들 중에서 y 좌표가 가장 작은 점 (left_top)
-    x_sorted_points = white_pixel_coords[np.argsort(white_pixel_coords[:, 1])]
-    left_top = x_sorted_points[:20][x_sorted_points[:20, 0].argmin()]
-
-    # x 좌표가 가장 작은 점들 중에서 y 좌표가 가장 큰 점 (left_bottom)
-    left_bottom = x_sorted_points[:20][x_sorted_points[:20, 0].argmax()]
-
-    # x 좌표가 가장 큰 점들 중에서 y 좌표가 가장 작은 점 (right_bottom)
-    right_bottom = x_sorted_points[-20:][x_sorted_points[-20:, 0].argmin()]
-
-    # x 좌표가 가장 큰 점들 중에서 y 좌표가 가장 큰 점 (right_top)
-    right_top = x_sorted_points[-20:][x_sorted_points[-20:, 0].argmax()]
+    white_y = sorted(white_pixel_coords, key = lambda p : p[0])
+    bottom = white_y[0]
+    top = white_y[-1]
+    white_xplusy = sorted(white_pixel_coords, key = lambda p : p[0] + p[1]*2)
+    left_top = white_xplusy[0]
+    right_bottom = white_xplusy[-1]
+    white_xminusy = sorted(white_pixel_coords, key = lambda p : p[0] - p[1]*2)
+    left_bottom = white_xminusy[0]
+    right_top = white_xminusy[-1]
 
     top = [top[1], top[0]]
     bottom = [bottom[1], bottom[0]]
@@ -196,6 +186,16 @@ def calculate_real_length(width, height, tall, distance, fx, img_width):
     real_height = round((height * (img_width / (100))) * distance / fx, 2)
     real_tall = round((tall * (img_width / (100))) * distance / fx, 2)
 
+    if(real_height > real_width):
+        temp = real_height
+        real_height = real_width
+        real_width = temp
+
+    if real_width >= 700 or real_height >= 700 or real_tall >= 700 or real_width <= 50 or real_height <= 50 or real_tall<= 50:
+        real_width = 300
+        real_height = 300
+        real_tall = 300
+
 
     return real_width, real_height, real_tall
 
@@ -229,9 +229,9 @@ def find(edges, original, box, original_ratio, params, show=False):
     away_x, away_y = min(left_top[0], left_bottom[0]), top[1]
     #좌표 조정
     try:
-        top, bottom, left_top, left_bottom, right_top, right_bottom = adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, away_y, original_ratio ,box)
-    except Exception:
-        print("except")
+        top, bottom, left_top, left_bottom, right_top, right_bottom = adjust_points(top, bottom, left_top, left_bottom, right_top, right_bottom, original_ratio ,box)
+    except Exception as e:
+        print(e)
         return (300, 300, 300)
 
     #이미지 꼭지점 좌표를 토대로 구한 가로, 세로, 높이
